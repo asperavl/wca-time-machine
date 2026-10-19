@@ -1,73 +1,57 @@
-# WCA Time Machine: Historical 3×3 Performance Intelligence
+# WCA Time Machine
 
-An offline-first, high-density analytical intelligence system and speedcubing time machine. It ingests the official World Cube Association (WCA) database export and benchmarks your 3×3 performance across all 25 competition eras from 1982 to 2026.
+See how your Rubik's Cube 3×3 times would have ranked across every era of speedcubing history, from 1982 to 2026.
 
-## System Architecture
+Uses the official World Cube Association (WCA) database export (1.88M+ results across 288K competitors).
 
-The project consists of two decoupled layers:
+## How it works
 
-1. **Data Ingestion Pipeline (`pipeline/`)**:
-   - Python + DuckDB pipeline that directly queries the official 666MB WCA competition database TSVs (`WCA_export_v2_291_20261018T000015Z.tsv/`).
-   - Evaluates 1,880,000+ official 3×3 solve records across 288,000+ competitors and 18,900+ competitions.
-   - Computes parametric distributions, deciles, centisecond-binned histograms (0.5s bins), and records.
-   - Outputs lean, precomputed JSON artifacts (`overview.json` and 25 per-year files `1982.json` to `2026.json`) into `frontend/public/data/`.
+### Pipeline (`pipeline/`)
+- Uses DuckDB to query the raw WCA TSVs (`WCA_export_Results.tsv` and `WCA_export_Competitions.tsv`) directly without loading the full dump into memory.
+- Filters for official 3×3 events (`eventId = '333'`) and groups results by competition year (1982 to 2026).
+- Calculates empirical percentiles (quantiles P1 through P99), 0.5-second binned histograms, and records for both singles and trimmed averages.
+- Outputs `overview.json` and per-year `years/{year}.json` files directly into `frontend/public/data/` so the site runs completely client-side without a database server.
 
-2. **Frontend Application (`frontend/`)**:
-   - Vite + React + TypeScript static web app consuming the precomputed JSON.
-   - **Time Machine**:
-     - Tournament timer with hold-to-ready mechanic (holding red -> 300ms green ready lock -> running white centiseconds) or manual entry fallback.
-     - Color-coded facelet move tokens (`U`, `D`, `L`, `R`, `F`, `B`).
-     - 5-solve adjudication cassette automatically applying WCA Regulation 9f1 trimming (best and worst times trimmed).
-     - "Across the Eras" longitudinal percentile curve tracking your global standing across all 25 seasons.
-     - Milestone placement chronicle showing where your Ao5 would rank in historic speedcubing epochs (Budapest 1982, Worlds 2005, DaYan Era 2013, Magnetic Era 2019, Modern Era 2026).
-     - Cohort distribution histogram for any selected year with your time marked.
-   - **Historical Archive**:
-     - All-time macro performance evolution tracking Medians (P50), Elite Top 10% (P10), and Records (Min) from 1982 to 2026.
-     - Comparative era waveform overlay (compare any two historical years directly).
-     - Official dataset provenance and WCA regulation compliance notes.
+### Frontend (`frontend/`)
+- Static React + Vite app with a 5-solve timer (or manual entry).
+- Trims your solves according to WCA Regulation 9f1 (drops the fastest and slowest, averages the remaining three).
+- Evaluates your Ao5 against each era using linear interpolation between empirical percentiles.
 
----
+## Setup & Running
 
-## Quickstart
+### Data Pipeline (Python)
 
-### 1. Data Pipeline
-
-```powershell
-# Navigate to pipeline directory
+```bash
 cd pipeline
 
-# Activate virtual environment
-.\.venv\Scripts\activate
+# Create virtual environment and install dependencies
+uv venv
+uv pip install -e .
 
-# Run aggregation pipeline against local WCA export TSVs
-python -m src.aggregate
+# Run aggregation against local WCA export TSVs
+uv run python -m src.aggregate
 
-# Run automated pipeline tests
-pytest
+# Run tests
+uv run pytest
 ```
 
-### 2. Frontend Web App
+Precomputed JSON files are saved to `pipeline/data/` and mirrored to `frontend/public/data/`.
 
-```powershell
-# Navigate to frontend directory
+### Frontend (React + Vite)
+
+```bash
 cd frontend
 
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
-# App will run at http://localhost:5173/
+```
 
-# Build production bundle
+Open `http://localhost:5173`.
+
+To build static assets for production:
+
+```bash
 npm run build
 ```
 
----
-
-## Technical Specifications & Regulation Compliance
-
-- **WCA Regulation 9f1**: Trimmed Average of 5 removes the single fastest and slowest times, averaging the middle three.
-- **Historic Format Handling**: Pre-2003 competitions (specifically Budapest 1982) utilized Best-of-3 single formats; Ao5 averages begin with the modern era in 2003.
-- **Penalties**: Full support for +2 second penalties and DNF non-finishes.
-- **Design System**: Functional Rubik's color mapping (Yellow = Records/Focus, Blue = Median/Baseline, Orange = Top 10%/Compare, Green = Counted/Faster, Red = Trimmed/Penalties, White = Coordinates).
+The output in `frontend/dist/` can be deployed to any static host (Cloudflare Pages, Vercel, Netlify, etc.) with zero backend needed.

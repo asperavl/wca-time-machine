@@ -5,9 +5,9 @@ Offline data ingestion, validation, and aggregation pipeline using DuckDB and Py
 ## Usage
 
 ```bash
-# Activate virtual environment
-pipeline\.venv\Scripts\activate
-
 # Run aggregation pipeline against local WCA export TSVs
-python -m src.aggregate
+uv run python -m src.aggregate
+
+# Run test suite
+uv run pytest
 ```
