@@ -3,12 +3,16 @@ import type { OverviewData } from './types';
 import { fetchOverview } from './api';
 import { AnalyticsView } from './components/AnalyticsView';
 import { TimeMachineView } from './components/TimeMachineView';
-import { Clock, BarChart2, AlertTriangle } from 'lucide-react';
+import { LandingView } from './components/LandingView';
+import { Clock, BarChart2, AlertTriangle, LayoutGrid } from 'lucide-react';
 
-type MainTab = 'analytics' | 'timemachine';
+type MainTab = 'landing' | 'analytics' | 'timemachine';
 
 export const App: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<MainTab>('analytics');
+  const [currentTab, setCurrentTab] = useState<MainTab>(() => {
+    const saved = localStorage.getItem('wca_time_machine_tab') as MainTab | null;
+    return saved === 'analytics' || saved === 'timemachine' ? saved : 'landing';
+  });
   const [overview, setOverview] = useState<OverviewData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +36,7 @@ export const App: React.FC = () => {
   const handleTabSwitch = (targetTab: MainTab) => {
     if (targetTab === currentTab) return;
 
-    if (currentTab === 'timemachine' && activeSessionInProgress) {
+    if (currentTab === 'timemachine' && activeSessionInProgress && targetTab !== 'timemachine') {
       const confirmLeave = window.confirm(
         'You have an active solving session in progress. Leaving now will discard your recorded solves. Are you sure you want to exit?'
       );
@@ -40,6 +44,7 @@ export const App: React.FC = () => {
     }
 
     setCurrentTab(targetTab);
+    localStorage.setItem('wca_time_machine_tab', targetTab);
   };
 
   if (loading) {
@@ -85,7 +90,12 @@ export const App: React.FC = () => {
       <div className="app-container">
         {/* Header */}
         <header className="app-header">
-          <div className="brand-section">
+          <div
+            className="brand-section"
+            style={{ cursor: 'pointer' }}
+            onClick={() => handleTabSwitch('landing')}
+            title="Return to Overview"
+          >
             <div className="rubik-grid-icon" title="WCA Rubik's Chrono-Spectrogram">
               <div style={{ background: 'var(--cube-white)' }} />
               <div style={{ background: 'var(--cube-yellow)' }} />
@@ -108,6 +118,13 @@ export const App: React.FC = () => {
           {/* Primary View Switcher */}
           <nav className="view-mode-tabs" aria-label="Main Navigation">
             <button
+              className={`view-mode-btn mode-overview ${currentTab === 'landing' ? 'active' : ''}`}
+              onClick={() => handleTabSwitch('landing')}
+            >
+              <LayoutGrid size={15} style={{ color: currentTab === 'landing' ? 'var(--cube-white)' : 'inherit' }} />
+              Overview
+            </button>
+            <button
               className={`view-mode-btn mode-tm ${currentTab === 'timemachine' ? 'active' : ''}`}
               onClick={() => handleTabSwitch('timemachine')}
             >
@@ -126,6 +143,12 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <main>
+        {currentTab === 'landing' && (
+          <LandingView
+            overview={overview}
+            onSelectMode={(mode) => handleTabSwitch(mode)}
+          />
+        )}
         {currentTab === 'analytics' && <AnalyticsView overview={overview} />}
         {currentTab === 'timemachine' && (
           <TimeMachineView
