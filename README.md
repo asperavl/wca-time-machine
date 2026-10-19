@@ -55,3 +55,8 @@ npm run build
 ```
 
 The output in `frontend/dist/` can be deployed to any static host (Cloudflare Pages, Vercel, Netlify, etc.) with zero backend needed.
+
+## License & Attribution
+
+- **Code**: Licensed under the [MIT License](LICENSE).
+- **Data**: Historical speedcubing statistics are derived from the official [World Cube Association](https://www.worldcubeassociation.org/) public export, used under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
