@@ -255,11 +255,12 @@ body {
   }
 }
 
-/* Scrollable WCA Adjudication Breakdown */
+/* Scrollable WCA Adjudication Breakdown & Solving Cassette */
 .solve-cassette-scrollable {
   display: flex !important;
   gap: 12px;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   padding-bottom: 10px;
   margin-bottom: 24px;
   scrollbar-width: thin;

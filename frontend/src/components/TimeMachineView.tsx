@@ -328,7 +328,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
               Solve Adjudication Cassette (5 Solves Required for Ao5)
             </div>
 
-            <div className="solve-cassette">
+            <div className="solve-cassette solve-cassette-scrollable">
               {Array.from({ length: 5 }).map((_, idx) => {
                 const s = solves[idx];
                 const isCurrent = idx === currentSolveIdx && solves.length < 5;
