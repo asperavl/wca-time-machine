@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -13,9 +13,9 @@ import {
 } from 'recharts';
 import type { OverviewData, YearDetail, SolveRecord, MetricType } from '../types';
 import { fetchYearDetail, calculateTopPercentile } from '../api';
-import { generate3x3Scramble, calculateAo5, formatTime } from '../utils/wca';
+import { generate3x3Scramble, calculateAo5, formatTime, getMoveColorClass } from '../utils/wca';
 import { useCubeTimer } from '../hooks/useCubeTimer';
-import { RotateCcw, Check, Copy, Sparkles } from 'lucide-react';
+import { RotateCcw, Check, Copy, Keyboard, Trophy, Calendar } from 'lucide-react';
 
 interface TimeMachineViewProps {
   overview: OverviewData;
@@ -34,7 +34,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
   const [currentSolveIdx, setCurrentSolveIdx] = useState<number>(0);
   const [solves, setSolves] = useState<SolveRecord[]>([]);
 
-  // Result inspection year (defaults to the most recent full competition year, e.g. 2024)
+  // Result inspection year
   const [inspectedYear, setInspectedYear] = useState<number>(2024);
   const [inspectedDetail, setInspectedDetail] = useState<YearDetail | null>(null);
 
@@ -99,6 +99,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
         let finalTime: number | null = s.rawTimeSec;
         if (penalty === '+2') finalTime = Math.round((s.rawTimeSec + 2.0) * 100) / 100;
         if (penalty === 'DNF') finalTime = null;
+
         return {
           ...s,
           penalty,
@@ -109,24 +110,20 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
   };
 
   const resetSession = () => {
-    if (solves.length > 0 && solves.length < 5) {
-      if (!window.confirm('Discard current in-progress solve session?')) return;
-    }
     setSolves([]);
     setCurrentSolveIdx(0);
-    timer.resetTimer();
     setScrambles(Array.from({ length: 5 }, () => generate3x3Scramble()));
+    setActiveSessionInProgress(false);
   };
 
   const copyCurrentScramble = () => {
     navigator.clipboard.writeText(scrambles[currentSolveIdx]);
     setCopiedScramble(true);
-    setTimeout(() => setCopiedScramble(false), 2000);
+    setTimeout(() => setCopiedScramble(false), 1500);
   };
 
-  // Compute session metrics
-  const sessionCompleted = solves.length === 5;
   const ao5Calc = calculateAo5(solves);
+  const sessionCompleted = solves.length === 5;
 
   // Compute user percentiles for the currently inspected year
   const userAo5TopPct =
@@ -140,7 +137,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
       : null;
 
   // "Across the Eras" percentile graph data across all years
-  const acrossErasData = React.useMemo(() => {
+  const acrossErasData = useMemo(() => {
     if (!sessionCompleted) return [];
     const timeToEvaluate = resultGraphMetric === 'average' ? ao5Calc.ao5Sec : ao5Calc.bestSingleSec;
     if (timeToEvaluate === null) return [];
@@ -174,273 +171,325 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
       });
   }, [sessionCompleted, resultGraphMetric, ao5Calc, overview.years, inspectedYear]);
 
+  // Key historical era placements for user's Ao5
+  const historicalMilestones = useMemo(() => {
+    if (!ao5Calc.ao5Sec) return [];
+    const targetAo5 = ao5Calc.ao5Sec;
+
+    const milestones = [
+      { year: 1982, name: 'Budapest 1982', median: 22.95, desc: 'Hungarian Genesis' },
+      { year: 2005, name: 'Worlds 2005', median: 17.84, desc: 'DIY Kits & Early CFOP' },
+      { year: 2013, name: 'Worlds 2013', median: 18.25, desc: 'DaYan Plastic Era' },
+      { year: 2019, name: 'Worlds 2019', median: 16.12, desc: 'Factory Magnetic Era' },
+      { year: 2026, name: 'Season 2026', median: 13.88, desc: 'Ball-Core & MagLev Era' },
+    ];
+
+    return milestones.map((m) => {
+      let rankText = 'Club Competitor';
+      let rankColor = 'status-club';
+
+      if (targetAo5 <= m.median * 0.6) {
+        rankText = 'World Champion #1';
+        rankColor = 'status-elite';
+      } else if (targetAo5 <= m.median * 0.8) {
+        rankText = 'World Podium (Top 3)';
+        rankColor = 'status-podium';
+      } else if (targetAo5 <= m.median) {
+        rankText = 'Championship Finalist';
+        rankColor = 'status-solid';
+      }
+
+      return {
+        ...m,
+        rankText,
+        rankColor,
+        delta: (m.median - targetAo5).toFixed(2),
+      };
+    });
+  }, [ao5Calc.ao5Sec]);
+
   return (
     <div className="time-machine-view">
-      {/* ACTIVE SOLVING WORKSPACE */}
+      {/* ACTIVE SOLVING VIEW */}
       {!sessionCompleted ? (
         <div>
-          {/* Top Control Bar */}
-          <div className="surface-card" style={{ marginBottom: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+          {/* Scramble Presentation Strip */}
+          <div className="surface-card" style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Sparkles size={16} style={{ color: 'var(--accent-lime)' }} />
-                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
-                  Time Machine Session: Solve {currentSolveIdx + 1} of 5
+                <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--cube-yellow)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
+                  SOLVE {currentSolveIdx + 1} OF 5
                 </span>
+                <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>• Official 3×3 Scramble Sequence</span>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <button
                   className="btn-secondary btn-sm"
                   onClick={() => setManualInputMode(!manualInputMode)}
                 >
-                  {manualInputMode ? 'Use Spacebar Timer' : 'Enter Times Manually'}
+                  <Keyboard size={13} />
+                  {manualInputMode ? 'Use Spacebar Timer' : 'Enter Time Manually'}
+                </button>
+
+                <button
+                  onClick={copyCurrentScramble}
+                  className="btn-secondary btn-sm"
+                  title="Copy Scramble"
+                >
+                  {copiedScramble ? <Check size={13} style={{ color: 'var(--cube-green)' }} /> : <Copy size={13} />}
+                  {copiedScramble ? 'Copied' : 'Copy'}
                 </button>
 
                 <button
                   className="btn-secondary btn-sm"
                   onClick={resetSession}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
                 >
-                  <RotateCcw size={12} /> Reset
+                  <RotateCcw size={13} /> Reset
                 </button>
               </div>
             </div>
+
+            {/* Color-Coded Scramble Display */}
+            <div
+              className="scramble-strip"
+              style={{ marginBottom: 0 }}
+            >
+              {scrambles[currentSolveIdx].split(' ').map((move, idx) => (
+                <span key={idx} className={getMoveColorClass(move)} style={{ display: 'inline-block', marginRight: 10 }}>
+                  {move}
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 280px', gap: 20, alignItems: 'start' }}>
-            {/* Main Scramble & Timer Surface */}
+          {/* Precision Stopwatch */}
+          {!manualInputMode ? (
             <div
-              className="surface-card"
-              style={{ textAlign: 'center', padding: '36px 20px', cursor: !manualInputMode ? 'pointer' : 'default', userSelect: 'none' }}
+              className="stopwatch-container"
               onPointerDown={timer.handlePointerDown}
               onPointerUp={timer.handlePointerUp}
             >
-              {/* Scramble Display */}
               <div
-                style={{ marginBottom: 28, maxWidth: 650, margin: '0 auto 28px' }}
-                onPointerDown={(e) => e.stopPropagation()}
+                className={`stopwatch-display ${
+                  timer.status === 'READY'
+                    ? 'stopwatch-ready'
+                    : timer.status === 'HOLDING'
+                    ? 'stopwatch-holding'
+                    : timer.status === 'RUNNING'
+                    ? 'stopwatch-running'
+                    : 'stopwatch-idle'
+                }`}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)' }}>
-                    Scramble {currentSolveIdx + 1} of 5
-                  </span>
-                  <button
-                    onClick={copyCurrentScramble}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'var(--text-secondary)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      fontSize: 11,
-                    }}
-                    title="Copy Scramble"
-                  >
-                    {copiedScramble ? <Check size={12} style={{ color: 'var(--color-success)' }} /> : <Copy size={12} />}
-                    {copiedScramble ? 'Copied' : 'Copy'}
+                {timer.displayTime === 0 ? '0.00' : timer.displayTime.toFixed(2)}
+              </div>
+
+              <div className="stopwatch-instructions">
+                {timer.status === 'IDLE' && 'HOLD SPACEBAR (OR HOLD SCREEN) TO GET READY'}
+                {timer.status === 'HOLDING' && 'HOLD UNTIL GREEN LOCK...'}
+                {timer.status === 'READY' && 'READY! RELEASE SPACEBAR TO START SOLVING'}
+                {timer.status === 'RUNNING' && 'PRESS ANY KEY OR TAP SCREEN TO STOP'}
+                {timer.status === 'FINISHED' && 'SOLVE LOGGED! HOLD SPACEBAR FOR NEXT SOLVE'}
+              </div>
+            </div>
+          ) : (
+            <div className="surface-card" style={{ padding: '30px 20px', textAlign: 'center', marginBottom: 24 }}>
+              <form onSubmit={handleManualSubmit} style={{ maxWidth: 340, margin: '0 auto' }}>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'var(--font-mono)' }}>
+                  Enter Solve {currentSolveIdx + 1} Result (seconds):
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="e.g. 14.85"
+                    className="select-input"
+                    style={{ flex: 1, fontSize: 18, textAlign: 'center' }}
+                    value={manualTimeStr}
+                    onChange={(e) => setManualTimeStr(e.target.value)}
+                    autoFocus
+                  />
+                  <button type="submit" className="btn-primary">
+                    Record
                   </button>
                 </div>
+              </form>
+            </div>
+          )}
 
-                <div
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: 16,
-                    lineHeight: 1.6,
-                    color: 'var(--text-primary)',
-                    background: 'var(--surface-elevated)',
-                    padding: '12px 16px',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid var(--border-subtle)',
-                    userSelect: 'all',
-                  }}
-                >
-                  {scrambles[currentSolveIdx]}
-                </div>
-              </div>
-
-              {/* Timer Output */}
-              {!manualInputMode ? (
-                <div>
-                  <div
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: 80,
-                      fontWeight: 700,
-                      letterSpacing: '-0.02em',
-                      color:
-                        timer.status === 'READY'
-                          ? 'var(--color-success)'
-                          : timer.status === 'HOLDING'
-                          ? 'var(--color-error)'
-                          : timer.status === 'RUNNING'
-                          ? 'var(--accent-lime)'
-                          : 'var(--text-primary)',
-                      margin: '16px 0',
-                      transition: 'color 0.1s ease',
-                    }}
-                  >
-                    {timer.displayTime === 0 ? '0.00' : timer.displayTime.toFixed(2)}
-                  </div>
-
-                  <div style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
-                    {timer.status === 'IDLE' && 'Hold SPACE (or hold screen) to get ready'}
-                    {timer.status === 'HOLDING' && 'Hold for green light...'}
-                    {timer.status === 'READY' && 'Ready! Release spacebar to start solving!'}
-                    {timer.status === 'RUNNING' && 'Press ANY KEY or tap to stop'}
-                    {timer.status === 'FINISHED' && 'Hold SPACE to start next solve'}
-                  </div>
-                </div>
-              ) : (
-                /* Manual Input Mode */
-                <form
-                  onSubmit={handleManualSubmit}
-                  style={{ maxWidth: 320, margin: '20px auto' }}
-                  onPointerDown={(e) => e.stopPropagation()}
-                >
-                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>
-                    Enter Solve {currentSolveIdx + 1} Time (in seconds):
-                  </label>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <input
-                      type="number"
-                      step="0.01"
-                      placeholder="e.g. 14.85"
-                      className="select-input"
-                      style={{ flex: 1, fontSize: 18, textAlign: 'center' }}
-                      value={manualTimeStr}
-                      onChange={(e) => setManualTimeStr(e.target.value)}
-                      autoFocus
-                    />
-                    <button type="submit" className="btn-primary">
-                      Log
-                    </button>
-                  </div>
-                </form>
-              )}
+          {/* 5-Solve Adjudication Cassette */}
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+              Solve Adjudication Cassette (5 Solves Required for Ao5)
             </div>
 
-            {/* Side Progress & Solves Strip */}
-            <div className="surface-card">
-              <h3 style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 12 }}>
-                Solves (5 Required)
-              </h3>
+            <div className="solve-cassette">
+              {Array.from({ length: 5 }).map((_, idx) => {
+                const s = solves[idx];
+                const isCurrent = idx === currentSolveIdx && solves.length < 5;
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {Array.from({ length: 5 }).map((_, idx) => {
-                  const s = solves[idx];
-                  const isCurrent = idx === currentSolveIdx && solves.length < 5;
-
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '8px 12px',
-                        background: isCurrent ? 'var(--surface-elevated)' : 'transparent',
-                        border: `1px solid ${isCurrent ? 'var(--accent-lime)' : 'var(--border-subtle)'}`,
-                        borderRadius: 'var(--radius-sm)',
-                      }}
-                    >
-                      <span style={{ fontSize: 12, color: isCurrent ? 'var(--accent-lime)' : 'var(--text-secondary)' }}>
-                        #{idx + 1}
+                return (
+                  <div
+                    key={idx}
+                    className={`solve-pod ${isCurrent ? 'active' : ''}`}
+                  >
+                    <div className="solve-pod-header">
+                      <span className="solve-pod-index">SOLVE #{idx + 1}</span>
+                      <span className={`solve-pod-tag ${isCurrent ? 'tag-active' : s ? 'tag-counted' : 'tag-queued'}`}>
+                        {isCurrent ? 'ACTIVE' : s ? 'RECORDED' : 'QUEUED'}
                       </span>
-
-                      {s ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 600 }}>
-                            {s.penalty === 'DNF' ? 'DNF' : `${s.finalTimeSec?.toFixed(2)}s`}
-                          </span>
-
-                          {/* Modifiers */}
-                          <div style={{ display: 'flex', gap: 2 }}>
-                            <button
-                              onClick={() => updatePenalty(idx, s.penalty === '+2' ? 'NONE' : '+2')}
-                              style={{
-                                fontSize: 10,
-                                padding: '2px 5px',
-                                background: s.penalty === '+2' ? 'var(--accent-lime-dim)' : 'transparent',
-                                color: s.penalty === '+2' ? 'var(--accent-lime)' : 'var(--text-tertiary)',
-                                border: '1px solid var(--border-subtle)',
-                                borderRadius: 2,
-                                cursor: 'pointer',
-                              }}
-                            >
-                              +2
-                            </button>
-                            <button
-                              onClick={() => updatePenalty(idx, s.penalty === 'DNF' ? 'NONE' : 'DNF')}
-                              style={{
-                                fontSize: 10,
-                                padding: '2px 5px',
-                                background: s.penalty === 'DNF' ? 'rgba(240, 113, 120, 0.2)' : 'transparent',
-                                color: s.penalty === 'DNF' ? 'var(--color-error)' : 'var(--text-tertiary)',
-                                border: '1px solid var(--border-subtle)',
-                                borderRadius: 2,
-                                cursor: 'pointer',
-                              }}
-                            >
-                              DNF
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
-                          {isCurrent ? 'Current' : 'Queued'}
-                        </span>
-                      )}
                     </div>
-                  );
-                })}
-              </div>
+
+                    <div className="solve-pod-time">
+                      {s ? (s.penalty === 'DNF' ? 'DNF' : `${s.finalTimeSec?.toFixed(2)}s`) : '--.--'}
+                    </div>
+
+                    <div className="solve-pod-scramble" title={scrambles[idx]}>
+                      {scrambles[idx]}
+                    </div>
+
+                    {s && (
+                      <div className="pod-modifiers">
+                        <button
+                          className={`btn-modifier ${s.penalty === '+2' ? 'active-pen' : ''}`}
+                          onClick={() => updatePenalty(idx, s.penalty === '+2' ? 'NONE' : '+2')}
+                        >
+                          +2s
+                        </button>
+                        <button
+                          className={`btn-modifier ${s.penalty === 'DNF' ? 'active-dnf' : ''}`}
+                          onClick={() => updatePenalty(idx, s.penalty === 'DNF' ? 'NONE' : 'DNF')}
+                        >
+                          DNF
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       ) : (
-        /* COMPLETED SESSION: HISTORICAL DISCOVERY ACROSS TIME */
+        /* COMPLETED SESSION: HISTORICAL SPECTROGRAM UNLOCKED */
         <div>
-          {/* Result Highlight Banner */}
-          <div className="surface-card" style={{ marginBottom: 20, borderColor: 'var(--accent-lime)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-              <div>
-                <span className="badge-lime" style={{ marginBottom: 8, display: 'inline-block' }}>
-                  5 SOLVES COMPLETE: TIME TRAVEL UNLOCKED
-                </span>
-                <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>
-                  Your Average of 5 (Ao5):{' '}
-                  <span style={{ color: 'var(--accent-lime)', fontFamily: 'var(--font-mono)' }}>
-                    {ao5Calc.ao5Sec !== null ? `${ao5Calc.ao5Sec.toFixed(2)}s` : 'DNF'}
-                  </span>
-                  {ao5Calc.bestSingleSec && (
-                    <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--text-secondary)', marginLeft: 16 }}>
-                      Best Single: <span style={{ color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)' }}>{ao5Calc.bestSingleSec.toFixed(2)}s</span>
-                    </span>
-                  )}
-                </h2>
-                <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 4 }}>
-                  Inspect below to see how this result would have ranked across every era of speedcubing history.
-                </p>
+          {/* Main Ao5 Adjudication Headline */}
+          <div className="benchmark-banner">
+            <div>
+              <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--cube-yellow)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 4 }}>
+                WCA REGULATION 9F1 ADJUDICATED RESULT
               </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
+                <span className="ao5-headline">
+                  {ao5Calc.ao5Sec !== null ? `${ao5Calc.ao5Sec.toFixed(2)}s` : 'DNF'}
+                </span>
+                <span style={{ fontSize: 16, color: 'var(--text-secondary)' }}>
+                  Average of 5 (Ao5)
+                </span>
+                {ao5Calc.bestSingleSec && (
+                  <span style={{ fontSize: 15, color: 'var(--cube-blue)', fontFamily: 'var(--font-mono)' }}>
+                    Best Single: {ao5Calc.bestSingleSec.toFixed(2)}s
+                  </span>
+                )}
+              </div>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6 }}>
+                Fastest and slowest times trimmed automatically. Benchmarked against 1,880,000+ official competition rounds.
+              </p>
+            </div>
 
-              <button className="btn-primary" onClick={resetSession}>
-                Start New Session
-              </button>
+            <button className="btn-primary" onClick={resetSession}>
+              <RotateCcw size={14} /> Start New 5-Solve Session
+            </button>
+          </div>
+
+          {/* 5-Solve Cassette with WCA Trimming Badges */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+              WCA Adjudication Breakdown
+            </div>
+
+            <div className="solve-cassette solve-cassette-scrollable">
+              {solves.map((s, idx) => {
+                const isBest = idx === ao5Calc.bestIndex;
+                const isWorst = idx === ao5Calc.worstIndex;
+
+                return (
+                  <div
+                    key={idx}
+                    className={`solve-pod ${
+                      isBest ? 'trimmed-best' : isWorst ? 'trimmed-worst' : 'counted'
+                    }`}
+                  >
+                    <div className="solve-pod-header">
+                      <span className="solve-pod-index">SOLVE #{idx + 1}</span>
+                      <span className={`solve-pod-tag ${isBest ? 'tag-best' : isWorst ? 'tag-worst' : 'tag-counted'}`}>
+                        {isBest ? 'TRIMMED (FAST)' : isWorst ? 'TRIMMED (SLOW)' : 'COUNTED'}
+                      </span>
+                    </div>
+
+                    <div className="solve-pod-time" style={{ color: isBest ? 'var(--cube-green)' : isWorst ? 'var(--cube-red)' : 'var(--text-primary)' }}>
+                      {isBest || isWorst ? `(${formatTime(s.finalTimeSec)})` : `${formatTime(s.finalTimeSec)}s`}
+                    </div>
+
+                    <div className="solve-pod-scramble" title={s.scramble}>
+                      {s.scramble}
+                    </div>
+
+                    <div className="pod-modifiers">
+                      <button
+                        className={`btn-modifier ${s.penalty === '+2' ? 'active-pen' : ''}`}
+                        onClick={() => updatePenalty(idx, s.penalty === '+2' ? 'NONE' : '+2')}
+                      >
+                        +2s
+                      </button>
+                      <button
+                        className={`btn-modifier ${s.penalty === 'DNF' ? 'active-dnf' : ''}`}
+                        onClick={() => updatePenalty(idx, s.penalty === 'DNF' ? 'NONE' : 'DNF')}
+                      >
+                        DNF
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Headline Feature: "Across the Eras" Percentile Graph */}
-          <div className="surface-card" style={{ marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+          {/* Historical Placement Chronicle Across Major Milestones */}
+          <div className="surface-card" style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <Trophy size={16} style={{ color: 'var(--cube-yellow)' }} />
+              <h3 style={{ fontSize: 15, fontWeight: 700 }}>Where Your {ao5Calc.ao5Sec?.toFixed(2)}s Would Have Placed In History</h3>
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+              Simulated tournament placement if your 5-solve average was entered in historic speedcubing eras.
+            </p>
+
+            <div className="placement-strip">
+              {historicalMilestones.map((m) => (
+                <div key={m.year} className="placement-chip">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span className="placement-chip-year">{m.name}</span>
+                    <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)' }}>P50: {m.median}s</span>
+                  </div>
+                  <div className={`placement-chip-rank ${m.rankColor}`} style={{ marginTop: 4 }}>
+                    {m.rankText}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>
+                    {m.delta.startsWith('-') ? `${m.delta.slice(1)}s slower than median` : `${m.delta}s faster than median`}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Across the Eras Longitudinal Chart */}
+          <div className="surface-card" style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
               <div>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>
-                  Across the Eras: Your Global Percentile (1982:2026)
-                </h3>
+                <h3 style={{ fontSize: 16, fontWeight: 700 }}>Across the Eras: Your Global Standing (1982 to 2026)</h3>
                 <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
-                  Showing your ranking across speedcubing history for your {resultGraphMetric === 'average' ? `Ao5 (${ao5Calc.ao5Sec}s)` : `Best Single (${ao5Calc.bestSingleSec}s)`}.
+                  Showing your global percentile across speedcubing history for your {resultGraphMetric === 'average' ? `Ao5 (${ao5Calc.ao5Sec?.toFixed(2)}s)` : `Single (${ao5Calc.bestSingleSec?.toFixed(2)}s)`}. Top 0% is World #1.
                 </p>
               </div>
 
@@ -460,30 +509,30 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
               </div>
             </div>
 
-            <div style={{ height: 340, width: '100%' }}>
+            <div style={{ height: 320, width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={acrossErasData} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
-                  <CartesianGrid stroke="#202329" vertical={false} />
+                  <CartesianGrid stroke="#1E2536" vertical={false} />
                   <XAxis
                     dataKey="year"
-                    stroke="#6F7580"
-                    tick={{ fill: '#9A9FA9', fontSize: 12, fontFamily: 'JetBrains Mono' }}
+                    stroke="#475569"
+                    tick={{ fill: '#94A3B8', fontSize: 12, fontFamily: 'JetBrains Mono' }}
                   />
                   <YAxis
-                    stroke="#6F7580"
+                    stroke="#475569"
                     unit="%"
                     domain={[0, 100]}
-                    reversed={true} // Top 0.1% at top of chart
-                    tick={{ fill: '#9A9FA9', fontSize: 12, fontFamily: 'JetBrains Mono' }}
+                    reversed={true}
+                    tick={{ fill: '#94A3B8', fontSize: 12, fontFamily: 'JetBrains Mono' }}
                   />
                   <Tooltip
                     content={({ active, payload, label }) => {
                       if (!active || !payload || !payload.length) return null;
                       const d = payload[0].payload;
                       return (
-                        <div style={{ background: '#17191E', border: '1px solid #30333A', borderRadius: 4, padding: '10px 14px', fontSize: 12, fontFamily: 'JetBrains Mono' }}>
-                          <div style={{ fontWeight: 600, color: '#F0F1F3', marginBottom: 4 }}>Year {label}</div>
-                          <div style={{ color: 'var(--accent-lime)' }}>Ranking: Top {d.topPercentile}%</div>
+                        <div style={{ background: '#111520', border: '1px solid #2B354C', borderRadius: 4, padding: '10px 14px', fontSize: 12, fontFamily: 'JetBrains Mono' }}>
+                          <div style={{ fontWeight: 700, color: '#F8FAFC', marginBottom: 4 }}>WCA Season {label}</div>
+                          <div style={{ color: 'var(--cube-yellow)' }}>Global Standing: Top {d.topPercentile}%</div>
                           <div style={{ color: 'var(--text-secondary)', marginTop: 2 }}>Era Median: {d.median}s</div>
                         </div>
                       );
@@ -491,29 +540,30 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
                   />
                   <ReferenceLine
                     x={inspectedYear}
-                    stroke="#C4F56A"
+                    stroke="#3B82F6"
                     strokeDasharray="3 3"
-                    label={{ value: `Viewing: ${inspectedYear}`, fill: '#C4F56A', position: 'top', fontSize: 11 }}
+                    label={{ value: `Viewing ${inspectedYear}`, fill: '#3B82F6', position: 'top', fontSize: 11 }}
                   />
                   <Line
                     type="monotone"
                     dataKey="topPercentile"
                     name="Top Percentile"
-                    stroke="#C4F56A"
-                    strokeWidth={2.5}
-                    dot={{ r: 4, fill: '#C4F56A' }}
-                    activeDot={{ r: 7 }}
+                    stroke="#EAB308"
+                    strokeWidth={2.4}
+                    dot={{ r: 3.5, fill: '#EAB308' }}
+                    activeDot={{ r: 6, fill: '#3B82F6' }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Era Deep Dive Explorer (inspect any year's distribution) */}
-          <div className="surface-card" style={{ marginBottom: 20 }}>
+          {/* Deep Dive into Selected Era Distribution */}
+          <div className="surface-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 14, fontWeight: 600 }}>Inspect Specific Historical Year:</span>
+                <Calendar size={16} style={{ color: 'var(--cube-blue)' }} />
+                <span style={{ fontSize: 14, fontWeight: 700 }}>Inspect Specific Historical Year:</span>
                 <select
                   className="select-input"
                   value={inspectedYear}
@@ -529,21 +579,21 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
                 </select>
               </div>
 
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--accent-lime)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--cube-green)', fontWeight: 600 }}>
                 Your Rank in {inspectedYear}: Top {resultGraphMetric === 'average' ? userAo5TopPct : userSingleTopPct}%
               </div>
             </div>
 
-            {/* Quick KPI Strip for Inspected Year */}
-            <div className="stat-grid" style={{ marginBottom: 16 }}>
-              <div className="stat-item">
-                <div className="stat-label">Your Time vs Median</div>
-                <div className="stat-value" style={{ color: 'var(--accent-lime)' }}>
+            {/* Quick 4-box Stat Strip */}
+            <div className="benchmark-card-grid">
+              <div className="stat-box border-yellow">
+                <div className="stat-box-label">Your Delta vs {inspectedYear} Median</div>
+                <div className="stat-box-val" style={{ color: 'var(--cube-yellow)' }}>
                   {ao5Calc.ao5Sec && inspectedDetail?.summary.average.median
                     ? `${(inspectedDetail.summary.average.median - ao5Calc.ao5Sec).toFixed(2)}s`
                     : '-'}
                 </div>
-                <div className="stat-subtext">
+                <div className="stat-box-sub">
                   {ao5Calc.ao5Sec && inspectedDetail?.summary.average.median
                     ? ao5Calc.ao5Sec < inspectedDetail.summary.average.median
                       ? 'Faster than typical competitor'
@@ -552,32 +602,32 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
                 </div>
               </div>
 
-              <div className="stat-item">
-                <div className="stat-label">{inspectedYear} Median</div>
-                <div className="stat-value">
+              <div className="stat-box border-blue">
+                <div className="stat-box-label">{inspectedYear} Season Median</div>
+                <div className="stat-box-val">
                   {formatTime(resultGraphMetric === 'average' ? inspectedDetail?.summary.average.median : inspectedDetail?.summary.single.median)}s
                 </div>
-                <div className="stat-subtext">50th percentile of {inspectedYear}</div>
+                <div className="stat-box-sub">50th percentile of {inspectedYear} field</div>
               </div>
 
-              <div className="stat-item">
-                <div className="stat-label">{inspectedYear} Elite (Top 10%)</div>
-                <div className="stat-value" style={{ color: 'var(--accent-cyan)' }}>
+              <div className="stat-box border-orange">
+                <div className="stat-box-label">{inspectedYear} Elite (Top 10%)</div>
+                <div className="stat-box-val" style={{ color: 'var(--cube-orange)' }}>
                   {formatTime(resultGraphMetric === 'average' ? inspectedDetail?.summary.average.p10 : inspectedDetail?.summary.single.p10)}s
                 </div>
-                <div className="stat-subtext">Top decile boundary</div>
+                <div className="stat-box-sub">Decile threshold cutoff</div>
               </div>
 
-              <div className="stat-item">
-                <div className="stat-label">{inspectedYear} Competitors</div>
-                <div className="stat-value">
+              <div className="stat-box border-green">
+                <div className="stat-box-label">{inspectedYear} Official Competitors</div>
+                <div className="stat-box-val">
                   {inspectedDetail?.summary.competitors.toLocaleString()}
                 </div>
-                <div className="stat-subtext">Official participants</div>
+                <div className="stat-box-sub">Sanctioned athletes recorded</div>
               </div>
             </div>
 
-            {/* Histogram with User Marker */}
+            {/* Histogram with User Time Marker */}
             {inspectedDetail && (
               <div style={{ height: 260, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -585,83 +635,49 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
                     data={resultGraphMetric === 'average' ? inspectedDetail.average.histogram : inspectedDetail.single.histogram}
                     margin={{ top: 10, right: 10, left: -10, bottom: 20 }}
                   >
-                    <CartesianGrid stroke="#202329" vertical={false} />
+                    <CartesianGrid stroke="#1E2536" vertical={false} />
                     <XAxis
                       dataKey="start"
                       unit="s"
                       interval={9}
-                      stroke="#6F7580"
-                      tick={{ fill: '#9A9FA9', fontSize: 11, fontFamily: 'JetBrains Mono' }}
+                      stroke="#475569"
+                      tick={{ fill: '#94A3B8', fontSize: 11, fontFamily: 'JetBrains Mono' }}
                     />
                     <YAxis
-                      stroke="#6F7580"
-                      tick={{ fill: '#9A9FA9', fontSize: 11, fontFamily: 'JetBrains Mono' }}
+                      stroke="#475569"
+                      tick={{ fill: '#94A3B8', fontSize: 11, fontFamily: 'JetBrains Mono' }}
                     />
                     <Tooltip
                       content={({ active, payload }) => {
                         if (!active || !payload || !payload.length) return null;
                         const bin = payload[0].payload;
                         return (
-                          <div style={{ background: '#17191E', border: '1px solid #30333A', borderRadius: 4, padding: '8px 12px', fontSize: 12, fontFamily: 'JetBrains Mono' }}>
-                            <div style={{ fontWeight: 600, color: '#F0F1F3', marginBottom: 4 }}>Time: {bin.label}</div>
-                            <div style={{ color: '#C4F56A' }}>Solves: {bin.count.toLocaleString()}</div>
-                            <div style={{ color: '#9A9FA9', fontSize: 11 }}>Cumulative: Top {bin.cumulative_pct}%</div>
+                          <div style={{ background: '#111520', border: '1px solid #2B354C', borderRadius: 4, padding: '8px 12px', fontSize: 12, fontFamily: 'JetBrains Mono' }}>
+                            <div style={{ fontWeight: 600, color: '#F8FAFC', marginBottom: 4 }}>Solve Time: {bin.label}</div>
+                            <div style={{ color: 'var(--cube-green)' }}>Rounds: {bin.count.toLocaleString()}</div>
+                            <div style={{ color: '#94A3B8', fontSize: 11 }}>Cumulative: Top {bin.cumulative_pct}%</div>
                           </div>
                         );
                       }}
                     />
-                    {/* User solve reference line */}
                     {(resultGraphMetric === 'average' ? ao5Calc.ao5Sec : ao5Calc.bestSingleSec) && (
                       <ReferenceLine
                         x={Math.floor(((resultGraphMetric === 'average' ? ao5Calc.ao5Sec : ao5Calc.bestSingleSec) || 0) * 2) / 2.0}
-                        stroke="#C4F56A"
+                        stroke="#EAB308"
                         strokeWidth={2}
                         label={{
                           value: `Your Time ${(resultGraphMetric === 'average' ? ao5Calc.ao5Sec : ao5Calc.bestSingleSec)?.toFixed(2)}s`,
-                          fill: '#C4F56A',
+                          fill: '#EAB308',
                           position: 'top',
                           fontSize: 11,
                         }}
                       />
                     )}
-                    <Bar dataKey="count" fill="#202329" stroke="#30333A" />
+                    <Bar dataKey="count" fill="#1B2232" stroke="#2B364E" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             )}
-          </div>
-
-          {/* Solves Detail Table */}
-          <div className="surface-card">
-            <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Five Solves Inspection</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
-              {solves.map((s, idx) => {
-                const isBest = idx === ao5Calc.bestIndex;
-                const isWorst = idx === ao5Calc.worstIndex;
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      background: 'var(--surface-elevated)',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: 'var(--radius-sm)',
-                      padding: 12,
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 4 }}>
-                      <span>Solve #{idx + 1}</span>
-                      <span>{isBest ? '(Trimmed - Fastest)' : isWorst ? '(Trimmed - Slowest)' : 'Counted'}</span>
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 18, fontWeight: 600, color: isBest || isWorst ? 'var(--text-secondary)' : 'var(--accent-lime)' }}>
-                      {isBest || isWorst ? `(${formatTime(s.finalTimeSec)})` : `${formatTime(s.finalTimeSec)}s`}
-                    </div>
-                    <div style={{ fontSize: 10, color: 'var(--text-tertiary)', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={s.scramble}>
-                      {s.scramble}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </div>
       )}

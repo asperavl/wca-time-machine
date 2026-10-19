@@ -1,32 +1,33 @@
-# React + TypeScript + Vite
+# WCA Time Machine Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Vite + React + TypeScript static frontend application for historical speedcubing intelligence and era comparison.
 
-Currently, two official plugins are available:
+## Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Chrono-Spectrogram Time Machine**:
+  - Precision keyboard and touch timer with 300ms hold-to-ready state lock.
+  - Manual solve time logging mode for instant benchmarking.
+  - WCA Regulation 9f1 adjudication cassette with automatic trimming of fastest and slowest solves.
+  - Across the Eras longitudinal percentile curve (1982:2026).
+  - Historical milestone placement chronicle.
+  - Era cohort distribution histogram with user solve marker.
+- **Historical Archive**:
+  - Macro performance compression chart (P50, P10, Min).
+  - Comparative era waveform overlay (compare any two historical years directly).
+  - Data provenance drawer with official WCA TSV export specifications.
 
-## React Compiler
+## Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# Install dependencies
+npm install
 
-## Expanding the Oxlint configuration
+# Start development server
+npm run dev
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+# Run TypeScript check and production build
+npm run build
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+# Preview production build locally
+npm run preview
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.

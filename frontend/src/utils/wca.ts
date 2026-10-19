@@ -42,6 +42,22 @@ export function generate3x3Scramble(length = 21): string {
   return moves.join(' ');
 }
 
+/**
+ * Return CSS color class based on the facelet axis of the move.
+ */
+export function getMoveColorClass(move: string): string {
+  const face = move.charAt(0).toUpperCase();
+  switch (face) {
+    case 'U': return 'move-u';
+    case 'D': return 'move-d';
+    case 'F': return 'move-f';
+    case 'B': return 'move-b';
+    case 'R': return 'move-r';
+    case 'L': return 'move-l';
+    default: return '';
+  }
+}
+
 export interface Ao5CalculationResult {
   ao5Sec: number | null; // null if DNF
   bestSingleSec: number | null;

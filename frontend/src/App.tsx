@@ -71,36 +71,58 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="app-container">
-      {/* Header */}
-      <header className="app-header">
-        <div className="brand-section">
-          <h1 className="brand-title">WCA TIME MACHINE</h1>
-          <span className="dataset-pill">
-            WCA 3x3 • Oct 2026 • 1982–2026
-          </span>
-        </div>
+    <>
+      {/* Top Functional Rubik's Color Spectrum Ribbon */}
+      <div className="spectrum-bar">
+        <span className="sp-white" />
+        <span className="sp-yellow" />
+        <span className="sp-green" />
+        <span className="sp-blue" />
+        <span className="sp-red" />
+        <span className="sp-orange" />
+      </div>
 
-        {/* Primary View Switcher */}
-        <nav className="nav-tabs" aria-label="Main Navigation">
-          <button
-            className={`nav-tab-btn ${currentTab === 'analytics' ? 'active' : ''}`}
-            onClick={() => handleTabSwitch('analytics')}
-          >
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <BarChart2 size={14} /> Historical Analytics
-            </span>
-          </button>
-          <button
-            className={`nav-tab-btn ${currentTab === 'timemachine' ? 'active' : ''}`}
-            onClick={() => handleTabSwitch('timemachine')}
-          >
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <Clock size={14} /> Time Machine
-            </span>
-          </button>
-        </nav>
-      </header>
+      <div className="app-container">
+        {/* Header */}
+        <header className="app-header">
+          <div className="brand-section">
+            <div className="rubik-grid-icon" title="WCA Rubik's Chrono-Spectrogram">
+              <div style={{ background: 'var(--cube-white)' }} />
+              <div style={{ background: 'var(--cube-yellow)' }} />
+              <div style={{ background: 'var(--cube-green)' }} />
+              <div style={{ background: 'var(--cube-blue)' }} />
+              <div style={{ background: 'var(--cube-red)' }} />
+              <div style={{ background: 'var(--cube-orange)' }} />
+              <div style={{ background: 'var(--cube-yellow)' }} />
+              <div style={{ background: 'var(--cube-white)' }} />
+              <div style={{ background: 'var(--cube-blue)' }} />
+            </div>
+            <div>
+              <h1 className="brand-title">
+                WCA TIME MACHINE
+                <span className="brand-badge">3×3 HISTORICAL BENCHMARK</span>
+              </h1>
+            </div>
+          </div>
+
+          {/* Primary View Switcher */}
+          <nav className="view-mode-tabs" aria-label="Main Navigation">
+            <button
+              className={`view-mode-btn mode-tm ${currentTab === 'timemachine' ? 'active' : ''}`}
+              onClick={() => handleTabSwitch('timemachine')}
+            >
+              <Clock size={15} style={{ color: currentTab === 'timemachine' ? 'var(--cube-yellow)' : 'inherit' }} />
+              Time Machine
+            </button>
+            <button
+              className={`view-mode-btn mode-archive ${currentTab === 'analytics' ? 'active' : ''}`}
+              onClick={() => handleTabSwitch('analytics')}
+            >
+              <BarChart2 size={15} style={{ color: currentTab === 'analytics' ? 'var(--cube-blue)' : 'inherit' }} />
+              Historical Archive
+            </button>
+          </nav>
+        </header>
 
       {/* Main Content Area */}
       <main>
@@ -124,6 +146,7 @@ export const App: React.FC = () => {
         </div>
       </footer>
     </div>
+  </>
   );
 };
 
