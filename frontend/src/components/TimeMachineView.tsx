@@ -136,11 +136,13 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
       ? calculateTopPercentile(ao5Calc.bestSingleSec, inspectedDetail.single.percentiles)
       : null;
 
+  // Active user metric evaluation
+  const activeUserTime = resultGraphMetric === 'average' ? ao5Calc.ao5Sec : ao5Calc.bestSingleSec;
+  const userActiveTopPct = resultGraphMetric === 'average' ? userAo5TopPct : userSingleTopPct;
+
   // "Across the Eras" percentile graph data across all years
   const acrossErasData = useMemo(() => {
-    if (!sessionCompleted) return [];
-    const timeToEvaluate = resultGraphMetric === 'average' ? ao5Calc.ao5Sec : ao5Calc.bestSingleSec;
-    if (timeToEvaluate === null) return [];
+    if (!sessionCompleted || activeUserTime === null) return [];
 
     return overview.years
       .filter((y) => {
@@ -151,14 +153,14 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
         const stats = resultGraphMetric === 'average' ? y.average : y.single;
         let topPct: number | null = null;
 
-        if (stats.min && timeToEvaluate <= stats.min) {
+        if (stats.min && activeUserTime <= stats.min) {
           topPct = 0.1;
         } else if (stats.p90 && stats.p10) {
-          if (timeToEvaluate <= stats.p10) topPct = 5.0;
-          else if (stats.p25 && timeToEvaluate <= stats.p25) topPct = 17.5;
-          else if (stats.median && timeToEvaluate <= stats.median) topPct = 37.5;
-          else if (stats.p75 && timeToEvaluate <= stats.p75) topPct = 62.5;
-          else if (timeToEvaluate <= stats.p90) topPct = 82.5;
+          if (activeUserTime <= stats.p10) topPct = 5.0;
+          else if (stats.p25 && activeUserTime <= stats.p25) topPct = 17.5;
+          else if (stats.median && activeUserTime <= stats.median) topPct = 37.5;
+          else if (stats.p75 && activeUserTime <= stats.p75) topPct = 62.5;
+          else if (activeUserTime <= stats.p90) topPct = 82.5;
           else topPct = 95.0;
         }
 
@@ -169,44 +171,47 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
           isInspectedYear: y.year === inspectedYear,
         };
       });
-  }, [sessionCompleted, resultGraphMetric, ao5Calc, overview.years, inspectedYear]);
+  }, [sessionCompleted, resultGraphMetric, activeUserTime, overview.years, inspectedYear]);
 
-  // Key historical era placements for user's Ao5
+  // Key historical era placements for user's Ao5 derived dynamically from overview
   const historicalMilestones = useMemo(() => {
     if (!ao5Calc.ao5Sec) return [];
     const targetAo5 = ao5Calc.ao5Sec;
 
     const milestones = [
-      { year: 1982, name: 'Budapest 1982', median: 22.95, desc: 'Hungarian Genesis' },
-      { year: 2005, name: 'Worlds 2005', median: 17.84, desc: 'DIY Kits & Early CFOP' },
-      { year: 2013, name: 'Worlds 2013', median: 18.25, desc: 'DaYan Plastic Era' },
-      { year: 2019, name: 'Worlds 2019', median: 16.12, desc: 'Factory Magnetic Era' },
-      { year: 2026, name: 'Season 2026', median: 13.88, desc: 'Ball-Core & MagLev Era' },
+      { year: 1982, name: 'Budapest 1982', desc: 'Hungarian Genesis' },
+      { year: 2005, name: 'Worlds 2005', desc: 'DIY Kits & Early CFOP' },
+      { year: 2013, name: 'Worlds 2013', desc: 'DaYan Plastic Era' },
+      { year: 2019, name: 'Worlds 2019', desc: 'Factory Magnetic Era' },
+      { year: 2026, name: 'Season 2026', desc: 'Ball-Core & MagLev Era' },
     ];
 
     return milestones.map((m) => {
+      const yearStats = overview.years.find((y) => y.year === m.year);
+      const median = (m.year === 1982 ? yearStats?.single.median : yearStats?.average.median) ?? 15.0;
       let rankText = 'Club Competitor';
       let rankColor = 'status-club';
 
-      if (targetAo5 <= m.median * 0.6) {
+      if (targetAo5 <= median * 0.6) {
         rankText = 'World Champion #1';
         rankColor = 'status-elite';
-      } else if (targetAo5 <= m.median * 0.8) {
+      } else if (targetAo5 <= median * 0.8) {
         rankText = 'World Podium (Top 3)';
         rankColor = 'status-podium';
-      } else if (targetAo5 <= m.median) {
+      } else if (targetAo5 <= median) {
         rankText = 'Championship Finalist';
         rankColor = 'status-solid';
       }
 
       return {
         ...m,
+        median,
         rankText,
         rankColor,
-        delta: (m.median - targetAo5).toFixed(2),
+        delta: (median - targetAo5).toFixed(2),
       };
     });
-  }, [ao5Calc.ao5Sec]);
+  }, [ao5Calc.ao5Sec, overview.years]);
 
   return (
     <div className="time-machine-view">
@@ -580,7 +585,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
               </div>
 
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--cube-green)', fontWeight: 600 }}>
-                Your Rank in {inspectedYear}: Top {resultGraphMetric === 'average' ? userAo5TopPct : userSingleTopPct}%
+                Your Rank in {inspectedYear}: Top {userActiveTopPct}%
               </div>
             </div>
 
@@ -660,13 +665,13 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
                         );
                       }}
                     />
-                    {(resultGraphMetric === 'average' ? ao5Calc.ao5Sec : ao5Calc.bestSingleSec) && (
+                    {activeUserTime && (
                       <ReferenceLine
-                        x={Math.floor(((resultGraphMetric === 'average' ? ao5Calc.ao5Sec : ao5Calc.bestSingleSec) || 0) * 2) / 2.0}
+                        x={Math.floor(activeUserTime * 2) / 2.0}
                         stroke="#EAB308"
                         strokeWidth={2}
                         label={{
-                          value: `Your Time ${(resultGraphMetric === 'average' ? ao5Calc.ao5Sec : ao5Calc.bestSingleSec)?.toFixed(2)}s`,
+                          value: `Your Time ${activeUserTime.toFixed(2)}s`,
                           fill: '#EAB308',
                           position: 'top',
                           fontSize: 11,

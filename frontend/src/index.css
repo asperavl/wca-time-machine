@@ -183,12 +183,12 @@ body {
 }
 
 /* Facelet Scramble Move Tokens */
-.move-token-u { color: var(--cube-white); font-weight: 600; }
-.move-token-d { color: var(--cube-yellow); font-weight: 600; }
-.move-token-f { color: var(--cube-green); font-weight: 600; }
-.move-token-b { color: var(--cube-blue); font-weight: 600; }
-.move-token-l { color: var(--cube-orange); font-weight: 600; }
-.move-token-r { color: var(--cube-red); font-weight: 600; }
+.move-u, .move-token-u { color: var(--cube-white); font-weight: 600; }
+.move-d, .move-token-d { color: var(--cube-yellow); font-weight: 600; }
+.move-f, .move-token-f { color: var(--cube-green); font-weight: 600; }
+.move-b, .move-token-b { color: var(--cube-blue); font-weight: 600; }
+.move-l, .move-token-l { color: var(--cube-orange); font-weight: 600; }
+.move-r, .move-token-r { color: var(--cube-red); font-weight: 600; }
 
 /* Scramble Presentation Strip */
 .scramble-strip {
