@@ -1,0 +1,890 @@
+{
+  "metadata": {
+    "title": "WCA Time Machine Historical Dataset",
+    "export_date": "2026-10-18 00:00:15 UTC",
+    "export_format_version": "v2.0.2",
+    "event": "333",
+    "event_name": "3x3x3 Cube",
+    "years_span": "1982-2026",
+    "total_competitions": 18929,
+    "total_333_results": 1884289,
+    "total_competitors": 288465,
+    "total_valid_singles": 1882979,
+    "total_valid_averages": 1863252
+  },
+  "available_years": [
+    1982,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "years": [
+    {
+      "year": 1982,
+      "competitors": 19,
+      "single_count": 19,
+      "average_count": 0,
+      "single": {
+        "median": 29.11,
+        "mean": 30.49,
+        "p10": 24.46,
+        "p25": 24.99,
+        "p75": 30.88,
+        "p90": 39.46,
+        "min": 22.95,
+        "record_holder": {
+          "name": "Minh Thai",
+          "country": "USA",
+          "time": 22.95
+        }
+      },
+      "average": {
+        "median": null,
+        "mean": null,
+        "p10": null,
+        "p25": null,
+        "p75": null,
+        "p90": null,
+        "min": null,
+        "record_holder": null
+      }
+    },
+    {
+      "year": 2003,
+      "competitors": 85,
+      "single_count": 130,
+      "average_count": 8,
+      "single": {
+        "median": 26.4,
+        "mean": 37.25,
+        "p10": 18.28,
+        "p25": 20.88,
+        "p75": 43.36,
+        "p90": 68.5,
+        "min": 16.53,
+        "record_holder": {
+          "name": "Jess Bonde",
+          "country": "Denmark",
+          "time": 16.53
+        }
+      },
+      "average": {
+        "median": 21.61,
+        "mean": 21.45,
+        "p10": 20.34,
+        "p25": 20.84,
+        "p75": 21.97,
+        "p90": 22.35,
+        "min": 20.0,
+        "record_holder": {
+          "name": "Dan Knights",
+          "country": "USA",
+          "time": 20.0
+        }
+      }
+    },
+    {
+      "year": 2004,
+      "competitors": 204,
+      "single_count": 471,
+      "average_count": 199,
+      "single": {
+        "median": 28.66,
+        "mean": 37.16,
+        "p10": 17.85,
+        "p25": 22.12,
+        "p75": 41.51,
+        "p90": 67.16,
+        "min": 12.11,
+        "record_holder": {
+          "name": "Shotaro Makisumi (\u7267\u89d2\u7ae0\u592a\u90ce)",
+          "country": "Japan",
+          "time": 12.11
+        }
+      },
+      "average": {
+        "median": 27.13,
+        "mean": 32.35,
+        "p10": 19.18,
+        "p25": 21.69,
+        "p75": 34.04,
+        "p90": 47.07,
+        "min": 14.52,
+        "record_holder": {
+          "name": "Shotaro Makisumi (\u7267\u89d2\u7ae0\u592a\u90ce)",
+          "country": "Japan",
+          "time": 14.52
+        }
+      }
+    },
+    {
+      "year": 2005,
+      "competitors": 520,
+      "single_count": 1143,
+      "average_count": 706,
+      "single": {
+        "median": 25.03,
+        "mean": 35.33,
+        "p10": 15.77,
+        "p25": 18.7,
+        "p75": 39.64,
+        "p90": 65.92,
+        "min": 11.75,
+        "record_holder": {
+          "name": "Jean Pons",
+          "country": "France",
+          "time": 11.75
+        }
+      },
+      "average": {
+        "median": 25.43,
+        "mean": 31.78,
+        "p10": 17.58,
+        "p25": 20.2,
+        "p75": 36.39,
+        "p90": 53.16,
+        "min": 14.59,
+        "record_holder": {
+          "name": "Shotaro Makisumi (\u7267\u89d2\u7ae0\u592a\u90ce)",
+          "country": "Japan",
+          "time": 14.59
+        }
+      }
+    },
+    {
+      "year": 2006,
+      "competitors": 821,
+      "single_count": 1946,
+      "average_count": 1394,
+      "single": {
+        "median": 22.92,
+        "mean": 31.36,
+        "p10": 15.02,
+        "p25": 17.55,
+        "p75": 36.34,
+        "p90": 57.53,
+        "min": 10.48,
+        "record_holder": {
+          "name": "Toby Mao (\u6bdb\u53f0\u7acb)",
+          "country": "USA",
+          "time": 10.48
+        }
+      },
+      "average": {
+        "median": 24.56,
+        "mean": 31.53,
+        "p10": 16.76,
+        "p25": 19.35,
+        "p75": 35.11,
+        "p90": 56.16,
+        "min": 13.22,
+        "record_holder": {
+          "name": "Anssi Vanhala",
+          "country": "Finland",
+          "time": 13.22
+        }
+      }
+    },
+    {
+      "year": 2007,
+      "competitors": 1457,
+      "single_count": 3641,
+      "average_count": 3015,
+      "single": {
+        "median": 21.45,
+        "mean": 29.36,
+        "p10": 13.75,
+        "p25": 16.39,
+        "p75": 34.16,
+        "p90": 55.27,
+        "min": 9.55,
+        "record_holder": {
+          "name": "Ron van Bruchem",
+          "country": "Netherlands",
+          "time": 9.55
+        }
+      },
+      "average": {
+        "median": 23.79,
+        "mean": 33.16,
+        "p10": 15.52,
+        "p25": 18.3,
+        "p75": 37.86,
+        "p90": 61.53,
+        "min": 11.76,
+        "record_holder": {
+          "name": "JeongMin Yu (\uc720\uc815\ubbfc)",
+          "country": "Korea",
+          "time": 11.76
+        }
+      }
+    },
+    {
+      "year": 2008,
+      "competitors": 2943,
+      "single_count": 7825,
+      "average_count": 6654,
+      "single": {
+        "median": 20.15,
+        "mean": 27.37,
+        "p10": 13.21,
+        "p25": 15.53,
+        "p75": 30.34,
+        "p90": 50.31,
+        "min": 7.08,
+        "record_holder": {
+          "name": "Erik Akkersdijk",
+          "country": "Netherlands",
+          "time": 7.08
+        }
+      },
+      "average": {
+        "median": 22.26,
+        "mean": 30.16,
+        "p10": 15.03,
+        "p25": 17.38,
+        "p75": 33.12,
+        "p90": 55.05,
+        "min": 11.28,
+        "record_holder": {
+          "name": "Yu Nakajima (\u4e2d\u5cf6\u60a0)",
+          "country": "Japan",
+          "time": 11.28
+        }
+      }
+    },
+    {
+      "year": 2009,
+      "competitors": 4889,
+      "single_count": 13316,
+      "average_count": 12688,
+      "single": {
+        "median": 19.1,
+        "mean": 26.59,
+        "p10": 12.66,
+        "p25": 14.86,
+        "p75": 28.63,
+        "p90": 48.97,
+        "min": 7.88,
+        "record_holder": {
+          "name": "Piti Pichedpan (\u0e1b\u0e34\u0e15\u0e34 \u0e1e\u0e34\u0e40\u0e0a\u0e29\u0e10\u0e1e\u0e31\u0e19\u0e18\u0e4c)",
+          "country": "Thailand",
+          "time": 7.88
+        }
+      },
+      "average": {
+        "median": 21.84,
+        "mean": 30.22,
+        "p10": 14.54,
+        "p25": 17.03,
+        "p75": 32.66,
+        "p90": 55.68,
+        "min": 10.07,
+        "record_holder": {
+          "name": "Tomasz \u017bo\u0142nowski",
+          "country": "Poland",
+          "time": 10.07
+        }
+      }
+    },
+    {
+      "year": 2010,
+      "competitors": 6013,
+      "single_count": 17852,
+      "average_count": 17523,
+      "single": {
+        "median": 17.25,
+        "mean": 23.45,
+        "p10": 11.68,
+        "p25": 13.72,
+        "p75": 24.58,
+        "p90": 42.4,
+        "min": 6.77,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 6.77
+        }
+      },
+      "average": {
+        "median": 19.91,
+        "mean": 27.47,
+        "p10": 13.57,
+        "p25": 15.84,
+        "p75": 28.88,
+        "p90": 49.62,
+        "min": 7.91,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 7.91
+        }
+      }
+    },
+    {
+      "year": 2011,
+      "competitors": 7015,
+      "single_count": 22124,
+      "average_count": 21571,
+      "single": {
+        "median": 15.88,
+        "mean": 21.86,
+        "p10": 10.78,
+        "p25": 12.72,
+        "p75": 22.47,
+        "p90": 38.94,
+        "min": 5.66,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 5.66
+        }
+      },
+      "average": {
+        "median": 18.37,
+        "mean": 24.97,
+        "p10": 12.49,
+        "p25": 14.68,
+        "p75": 25.92,
+        "p90": 44.15,
+        "min": 7.64,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 7.64
+        }
+      }
+    },
+    {
+      "year": 2012,
+      "competitors": 7571,
+      "single_count": 23787,
+      "average_count": 23190,
+      "single": {
+        "median": 15.38,
+        "mean": 20.8,
+        "p10": 10.41,
+        "p25": 12.25,
+        "p75": 21.97,
+        "p90": 36.91,
+        "min": 6.09,
+        "record_holder": {
+          "name": "Yumu Tabuchi (\u7530\u6e15\u96c4\u5922)",
+          "country": "Japan",
+          "time": 6.09
+        }
+      },
+      "average": {
+        "median": 17.67,
+        "mean": 23.86,
+        "p10": 12.09,
+        "p25": 14.13,
+        "p75": 25.27,
+        "p90": 42.6,
+        "min": 7.53,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 7.53
+        }
+      }
+    },
+    {
+      "year": 2013,
+      "competitors": 9967,
+      "single_count": 31206,
+      "average_count": 30672,
+      "single": {
+        "median": 15.75,
+        "mean": 21.52,
+        "p10": 10.34,
+        "p25": 12.28,
+        "p75": 23.25,
+        "p90": 39.32,
+        "min": 5.55,
+        "record_holder": {
+          "name": "Mats Valk",
+          "country": "Netherlands",
+          "time": 5.55
+        }
+      },
+      "average": {
+        "median": 18.2,
+        "mean": 24.87,
+        "p10": 12.02,
+        "p25": 14.25,
+        "p75": 27.01,
+        "p90": 45.39,
+        "min": 6.54,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 6.54
+        }
+      }
+    },
+    {
+      "year": 2014,
+      "competitors": 14110,
+      "single_count": 44888,
+      "average_count": 43922,
+      "single": {
+        "median": 15.81,
+        "mean": 21.92,
+        "p10": 10.18,
+        "p25": 12.19,
+        "p75": 24.06,
+        "p90": 41.34,
+        "min": 5.66,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 5.66
+        }
+      },
+      "average": {
+        "median": 18.3,
+        "mean": 25.31,
+        "p10": 11.83,
+        "p25": 14.1,
+        "p75": 27.81,
+        "p90": 47.87,
+        "min": 6.77,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 6.77
+        }
+      }
+    },
+    {
+      "year": 2015,
+      "competitors": 18619,
+      "single_count": 57529,
+      "average_count": 56375,
+      "single": {
+        "median": 15.47,
+        "mean": 20.92,
+        "p10": 9.88,
+        "p25": 11.85,
+        "p75": 23.61,
+        "p90": 38.73,
+        "min": 4.9,
+        "record_holder": {
+          "name": "Lucas Etter",
+          "country": "USA",
+          "time": 4.9
+        }
+      },
+      "average": {
+        "median": 17.91,
+        "mean": 24.33,
+        "p10": 11.5,
+        "p25": 13.7,
+        "p75": 27.41,
+        "p90": 45.14,
+        "min": 6.57,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 6.57
+        }
+      }
+    },
+    {
+      "year": 2016,
+      "competitors": 26383,
+      "single_count": 78908,
+      "average_count": 77878,
+      "single": {
+        "median": 15.22,
+        "mean": 20.36,
+        "p10": 9.56,
+        "p25": 11.56,
+        "p75": 22.99,
+        "p90": 37.49,
+        "min": 4.73,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 4.73
+        }
+      },
+      "average": {
+        "median": 17.69,
+        "mean": 23.83,
+        "p10": 11.14,
+        "p25": 13.42,
+        "p75": 27.0,
+        "p90": 44.17,
+        "min": 6.45,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 6.45
+        }
+      }
+    },
+    {
+      "year": 2017,
+      "competitors": 35242,
+      "single_count": 113556,
+      "average_count": 112542,
+      "single": {
+        "median": 14.49,
+        "mean": 19.26,
+        "p10": 9.24,
+        "p25": 11.18,
+        "p75": 21.27,
+        "p90": 34.71,
+        "min": 4.59,
+        "record_holder": {
+          "name": "SeungBeom Cho (\uc870\uc2b9\ubc94)",
+          "country": "Korea",
+          "time": 4.59
+        }
+      },
+      "average": {
+        "median": 16.91,
+        "mean": 22.7,
+        "p10": 10.81,
+        "p25": 13.02,
+        "p75": 25.08,
+        "p90": 41.2,
+        "min": 5.8,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 5.8
+        }
+      }
+    },
+    {
+      "year": 2018,
+      "competitors": 41637,
+      "single_count": 138555,
+      "average_count": 137455,
+      "single": {
+        "median": 14.01,
+        "mean": 18.95,
+        "p10": 8.9,
+        "p25": 10.76,
+        "p75": 21.01,
+        "p90": 35.15,
+        "min": 3.47,
+        "record_holder": {
+          "name": "Yusheng Du (\u675c\u5b87\u751f)",
+          "country": "China",
+          "time": 3.47
+        }
+      },
+      "average": {
+        "median": 16.35,
+        "mean": 22.35,
+        "p10": 10.42,
+        "p25": 12.52,
+        "p75": 24.75,
+        "p90": 41.61,
+        "min": 5.91,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 5.91
+        }
+      }
+    },
+    {
+      "year": 2019,
+      "competitors": 46273,
+      "single_count": 154663,
+      "average_count": 153489,
+      "single": {
+        "median": 13.71,
+        "mean": 18.65,
+        "p10": 8.64,
+        "p25": 10.45,
+        "p75": 20.65,
+        "p90": 34.86,
+        "min": 4.24,
+        "record_holder": {
+          "name": "Patrick Ponce",
+          "country": "USA",
+          "time": 4.24
+        }
+      },
+      "average": {
+        "median": 15.99,
+        "mean": 21.97,
+        "p10": 10.11,
+        "p25": 12.18,
+        "p75": 24.31,
+        "p90": 41.3,
+        "min": 5.53,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 5.53
+        }
+      }
+    },
+    {
+      "year": 2020,
+      "competitors": 12183,
+      "single_count": 26289,
+      "average_count": 26099,
+      "single": {
+        "median": 13.37,
+        "mean": 17.73,
+        "p10": 8.44,
+        "p25": 10.16,
+        "p75": 19.74,
+        "p90": 32.2,
+        "min": 4.16,
+        "record_holder": {
+          "name": "Feliks Zemdegs",
+          "country": "Australia",
+          "time": 4.16
+        }
+      },
+      "average": {
+        "median": 15.59,
+        "mean": 20.88,
+        "p10": 9.9,
+        "p25": 11.84,
+        "p75": 23.35,
+        "p90": 38.2,
+        "min": 5.59,
+        "record_holder": {
+          "name": "Max Park",
+          "country": "USA",
+          "time": 5.59
+        }
+      }
+    },
+    {
+      "year": 2021,
+      "competitors": 9135,
+      "single_count": 22298,
+      "average_count": 22137,
+      "single": {
+        "median": 11.87,
+        "mean": 15.88,
+        "p10": 7.73,
+        "p25": 9.19,
+        "p75": 17.46,
+        "p90": 28.8,
+        "min": 4.06,
+        "record_holder": {
+          "name": "Ruihang Xu (\u8bb8\u745e\u822a)",
+          "country": "China",
+          "time": 4.06
+        }
+      },
+      "average": {
+        "median": 13.91,
+        "mean": 18.7,
+        "p10": 9.09,
+        "p25": 10.72,
+        "p75": 20.57,
+        "p90": 34.09,
+        "min": 5.09,
+        "record_holder": {
+          "name": "Tymon Kolasi\u0144ski",
+          "country": "Poland",
+          "time": 5.09
+        }
+      }
+    },
+    {
+      "year": 2022,
+      "competitors": 36678,
+      "single_count": 132042,
+      "average_count": 131120,
+      "single": {
+        "median": 13.09,
+        "mean": 17.14,
+        "p10": 7.99,
+        "p25": 9.75,
+        "p75": 19.98,
+        "p90": 31.21,
+        "min": 3.63,
+        "record_holder": {
+          "name": "Max Park",
+          "country": "USA",
+          "time": 3.63
+        }
+      },
+      "average": {
+        "median": 15.32,
+        "mean": 20.25,
+        "p10": 9.37,
+        "p25": 11.38,
+        "p75": 23.56,
+        "p90": 37.08,
+        "min": 4.86,
+        "record_holder": {
+          "name": "Max Park",
+          "country": "USA",
+          "time": 4.86
+        }
+      }
+    },
+    {
+      "year": 2023,
+      "competitors": 58991,
+      "single_count": 252212,
+      "average_count": 250551,
+      "single": {
+        "median": 13.13,
+        "mean": 17.2,
+        "p10": 7.96,
+        "p25": 9.75,
+        "p75": 20.0,
+        "p90": 31.39,
+        "min": 3.13,
+        "record_holder": {
+          "name": "Max Park",
+          "country": "USA",
+          "time": 3.13
+        }
+      },
+      "average": {
+        "median": 15.38,
+        "mean": 20.36,
+        "p10": 9.33,
+        "p25": 11.41,
+        "p75": 23.68,
+        "p90": 37.31,
+        "min": 4.48,
+        "record_holder": {
+          "name": "Yiheng Wang (\u738b\u827a\u8861)",
+          "country": "China",
+          "time": 4.48
+        }
+      }
+    },
+    {
+      "year": 2024,
+      "competitors": 61463,
+      "single_count": 279677,
+      "average_count": 277979,
+      "single": {
+        "median": 12.41,
+        "mean": 16.6,
+        "p10": 7.72,
+        "p25": 9.37,
+        "p75": 18.87,
+        "p90": 30.34,
+        "min": 3.24,
+        "record_holder": {
+          "name": "Ruihang Xu (\u8bb8\u745e\u822a)",
+          "country": "China",
+          "time": 3.24
+        }
+      },
+      "average": {
+        "median": 14.54,
+        "mean": 19.64,
+        "p10": 9.07,
+        "p25": 10.98,
+        "p75": 22.32,
+        "p90": 36.1,
+        "min": 4.05,
+        "record_holder": {
+          "name": "Yiheng Wang (\u738b\u827a\u8861)",
+          "country": "China",
+          "time": 4.05
+        }
+      }
+    },
+    {
+      "year": 2025,
+      "competitors": 58688,
+      "single_count": 260255,
+      "average_count": 258765,
+      "single": {
+        "median": 11.86,
+        "mean": 16.03,
+        "p10": 7.47,
+        "p25": 9.03,
+        "p75": 17.81,
+        "p90": 29.26,
+        "min": 3.05,
+        "record_holder": {
+          "name": "Xuanyi Geng (\u803f\u6684\u4e00)",
+          "country": "China",
+          "time": 3.05
+        }
+      },
+      "average": {
+        "median": 13.87,
+        "mean": 18.97,
+        "p10": 8.79,
+        "p25": 10.59,
+        "p75": 21.06,
+        "p90": 34.76,
+        "min": 3.9,
+        "record_holder": {
+          "name": "Yiheng Wang (\u738b\u827a\u8861)",
+          "country": "China",
+          "time": 3.9
+        }
+      }
+    },
+    {
+      "year": 2026,
+      "competitors": 50127,
+      "single_count": 198647,
+      "average_count": 197320,
+      "single": {
+        "median": 11.77,
+        "mean": 16.0,
+        "p10": 7.29,
+        "p25": 8.89,
+        "p75": 17.82,
+        "p90": 29.68,
+        "min": 2.51,
+        "record_holder": {
+          "name": "Xuanyi Geng (\u803f\u6684\u4e00)",
+          "country": "China",
+          "time": 2.51
+        }
+      },
+      "average": {
+        "median": 13.77,
+        "mean": 18.93,
+        "p10": 8.59,
+        "p25": 10.4,
+        "p75": 21.06,
+        "p90": 35.18,
+        "min": 3.51,
+        "record_holder": {
+          "name": "Yiheng Wang (\u738b\u827a\u8861)",
+          "country": "China",
+          "time": 3.51
+        }
+      }
+    }
+  ]
+}

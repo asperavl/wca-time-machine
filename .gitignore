@@ -1,0 +1,27 @@
+# Raw WCA export TSVs
+WCA_export_*/
+*.tsv
+*.bz2
+*.duckdb
+
+# Python & UV
+.venv/
+pipeline/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+.vite/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Design and Agent Specs
+DESIGN.md
+AGENTS.md
