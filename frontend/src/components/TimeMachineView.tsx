@@ -516,7 +516,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
 
             <div style={{ height: 320, width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={acrossErasData} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
+                <LineChart data={acrossErasData} margin={{ top: 28, right: 28, left: 0, bottom: 20 }}>
                   <CartesianGrid stroke="#1E2536" vertical={false} />
                   <XAxis
                     dataKey="year"
@@ -547,7 +547,13 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
                     x={inspectedYear}
                     stroke="#3B82F6"
                     strokeDasharray="3 3"
-                    label={{ value: `Viewing ${inspectedYear}`, fill: '#3B82F6', position: 'top', fontSize: 11 }}
+                    label={{
+                      value: `Viewing ${inspectedYear}`,
+                      fill: '#60A5FA',
+                      position: 'top',
+                      fontSize: 11,
+                      offset: 8,
+                    }}
                   />
                   <Line
                     type="monotone"
@@ -638,7 +644,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={resultGraphMetric === 'average' ? inspectedDetail.average.histogram : inspectedDetail.single.histogram}
-                    margin={{ top: 10, right: 10, left: -10, bottom: 20 }}
+                    margin={{ top: 28, right: 15, left: -10, bottom: 20 }}
                   >
                     <CartesianGrid stroke="#1E2536" vertical={false} />
                     <XAxis
@@ -675,6 +681,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
                           fill: '#EAB308',
                           position: 'top',
                           fontSize: 11,
+                          offset: 8,
                         }}
                       />
                     )}

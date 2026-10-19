@@ -179,7 +179,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
 
             <div style={{ height: 350, width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendChartData} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
+                <LineChart data={trendChartData} margin={{ top: 28, right: 28, left: 0, bottom: 20 }}>
                   <CartesianGrid stroke="#1E2536" strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="year"
@@ -210,7 +210,13 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
                     x={selectedYear}
                     stroke="#EAB308"
                     strokeDasharray="3 3"
-                    label={{ value: `Inspecting ${selectedYear}`, fill: '#EAB308', position: 'top', fontSize: 11 }}
+                    label={{
+                      value: `Inspecting ${selectedYear}`,
+                      fill: '#EAB308',
+                      position: 'top',
+                      fontSize: 11,
+                      offset: 8,
+                    }}
                   />
                   <Line
                     type="monotone"
@@ -353,7 +359,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={yearDetail ? (metric === 'average' ? yearDetail.average.histogram : yearDetail.single.histogram) : []}
-                        margin={{ top: 10, right: 10, left: -10, bottom: 20 }}
+                        margin={{ top: 28, right: 15, left: -10, bottom: 20 }}
                       >
                         <CartesianGrid stroke="#1E2536" vertical={false} />
                         <XAxis
@@ -385,7 +391,13 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
                             x={Math.floor(currentStats.median * 2) / 2.0}
                             stroke="#3B82F6"
                             strokeDasharray="4 4"
-                            label={{ value: `Median ${currentStats.median}s`, fill: '#3B82F6', position: 'top', fontSize: 11 }}
+                            label={{
+                              value: `Median ${currentStats.median}s`,
+                              fill: '#3B82F6',
+                              position: 'top',
+                              fontSize: 11,
+                              offset: 8,
+                            }}
                           />
                         )}
                         <Bar dataKey="count" fill="#1C2333" stroke="#2B374F" activeBar={{ fill: '#3B82F6' }} />
