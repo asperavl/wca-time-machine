@@ -8,15 +8,6 @@ interface LandingViewProps {
 }
 
 export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode }) => {
-  // Milestones derived dynamically from WCA overview data
-  const epochs = [
-    { year: 1982, name: 'Budapest 1982', desc: 'First World Championship', median: '29.1s' },
-    { year: 2005, name: 'Worlds 2005', desc: 'WCA Founded & CFOP', median: '25.4s' },
-    { year: 2013, name: 'Worlds 2013', desc: 'Modern Hardware Era', median: '18.2s' },
-    { year: 2019, name: 'Worlds 2019', desc: 'Magnetic Positioning', median: '16.0s' },
-    { year: 2026, name: 'Season 2026', desc: 'Current Competition Year', median: '13.8s' },
-  ];
-
   return (
     <div className="landing-container">
       {/* Clean Header */}
@@ -167,7 +158,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode
                 </div>
               </div>
               <div className="micro-archive-footer">
-                <span>Budapest: <strong>29.11s</strong></span>
+                <span>1982: <strong>29.11s</strong></span>
                 <span>Season 2026: <strong>13.77s</strong></span>
               </div>
             </div>
@@ -183,26 +174,6 @@ export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode
             <span>Browse History</span>
             <ArrowRight size={14} />
           </button>
-        </div>
-      </div>
-
-      {/* Milestone Rail: 5 Historic Speedcubing Milestones */}
-      <div className="epoch-rail-container">
-        <div className="epoch-rail-title">KEY COMPETITION MILESTONES (1982 TO 2026)</div>
-        <div className="epoch-rail-nodes">
-          {epochs.map((ep) => (
-            <div
-              key={ep.year}
-              className="epoch-node"
-              onClick={() => onSelectMode('analytics')}
-              title={`View ${ep.name} in Historical Archive`}
-            >
-              <div className="epoch-year">{ep.year}</div>
-              <div className="epoch-name">{ep.name}</div>
-              <div className="epoch-desc">{ep.desc}</div>
-              <div className="epoch-stat">Median {ep.median}</div>
-            </div>
-          ))}
         </div>
       </div>
 

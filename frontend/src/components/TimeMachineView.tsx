@@ -15,7 +15,9 @@ import type { OverviewData, YearDetail, SolveRecord, MetricType } from '../types
 import { fetchYearDetail, calculateTopPercentile } from '../api';
 import { generateWcaScrambles, calculateAo5, formatTime, getMoveColorClass } from '../utils/wca';
 import { useCubeTimer } from '../hooks/useCubeTimer';
-import { RotateCcw, Check, Copy, Keyboard, Trophy, Calendar, AlertCircle } from 'lucide-react';
+import { RotateCcw, Check, Copy, Keyboard, AlertCircle } from 'lucide-react';
+
+import { YearScrubberBar } from './YearScrubberBar';
 
 interface TimeMachineViewProps {
   overview: OverviewData;
@@ -23,6 +25,8 @@ interface TimeMachineViewProps {
   setActiveSessionInProgress?: (inProgress: boolean) => void;
   onTimerRunningChange?: (isRunning: boolean) => void;
   isActiveTab?: boolean;
+  selectedYear?: number;
+  onSelectYear?: (year: number) => void;
 }
 
 export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
@@ -30,6 +34,8 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
   setActiveSessionInProgress,
   onTimerRunningChange,
   isActiveTab = true,
+  selectedYear: propSelectedYear,
+  onSelectYear: propOnSelectYear,
 }) => {
   // Scrambles for the 5 solves (persisted across tab switches and refreshes)
   const [scrambles, setScrambles] = useState<string[]>(() => {
@@ -60,8 +66,10 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
     return 0;
   });
 
-  // Result inspection year
-  const [inspectedYear, setInspectedYear] = useState<number>(2024);
+  // Result inspection year (synchronized with global prop or local state)
+  const [internalInspectedYear, setInternalInspectedYear] = useState<number>(2024);
+  const inspectedYear = propSelectedYear !== undefined ? propSelectedYear : internalInspectedYear;
+  const setInspectedYear = propOnSelectYear || setInternalInspectedYear;
   const [inspectedDetail, setInspectedDetail] = useState<YearDetail | null>(null);
 
   // Manual entry toggle
@@ -257,45 +265,6 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
       });
   }, [sessionCompleted, resultGraphMetric, activeUserTime, overview.years, inspectedYear]);
 
-  // Key historical era placements for user's Ao5 derived dynamically from overview
-  const historicalMilestones = useMemo(() => {
-    if (!ao5Calc.ao5Sec) return [];
-    const targetAo5 = ao5Calc.ao5Sec;
-
-    const milestones = [
-      { year: 1982, name: 'Budapest 1982', desc: 'Hungarian Genesis' },
-      { year: 2005, name: 'Worlds 2005', desc: 'DIY Kits & Early CFOP' },
-      { year: 2013, name: 'Worlds 2013', desc: 'DaYan Plastic Era' },
-      { year: 2019, name: 'Worlds 2019', desc: 'Factory Magnetic Era' },
-      { year: 2026, name: 'Season 2026', desc: 'Ball-Core & MagLev Era' },
-    ];
-
-    return milestones.map((m) => {
-      const yearStats = overview.years.find((y) => y.year === m.year);
-      const median = (m.year === 1982 ? yearStats?.single.median : yearStats?.average.median) ?? 15.0;
-      let rankText = 'Club Competitor';
-      let rankColor = 'status-club';
-
-      if (targetAo5 <= median * 0.6) {
-        rankText = 'World Champion #1';
-        rankColor = 'status-elite';
-      } else if (targetAo5 <= median * 0.8) {
-        rankText = 'World Podium (Top 3)';
-        rankColor = 'status-podium';
-      } else if (targetAo5 <= median) {
-        rankText = 'Championship Finalist';
-        rankColor = 'status-solid';
-      }
-
-      return {
-        ...m,
-        median,
-        rankText,
-        rankColor,
-        delta: (median - targetAo5).toFixed(2),
-      };
-    });
-  }, [ao5Calc.ao5Sec, overview.years]);
 
   return (
     <div className="time-machine-view">
@@ -561,33 +530,15 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
             </div>
           </div>
 
-          {/* Historical Placement Across Major Milestones */}
-          <div className="surface-card" style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <Trophy size={16} style={{ color: 'var(--cube-yellow)' }} />
-              <h3 style={{ fontSize: 15, fontWeight: 700 }}>Where Your {ao5Calc.ao5Sec?.toFixed(2)}s Would Have Placed In History</h3>
-            </div>
-            <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-              How your 5-solve average compares to median competition times across historical years.
-            </p>
-
-            <div className="placement-strip">
-              {historicalMilestones.map((m) => (
-                <div key={m.year} className="placement-chip">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className="placement-chip-year">{m.name}</span>
-                    <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)' }}>P50: {m.median}s</span>
-                  </div>
-                  <div className={`placement-chip-rank ${m.rankColor}`} style={{ marginTop: 4 }}>
-                    {m.rankText}
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>
-                    {m.delta.startsWith('-') ? `${m.delta.slice(1)}s slower than median` : `${m.delta}s faster than median`}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Persistent Pinned Top Year Scrubber Bar */}
+          <YearScrubberBar
+            availableYears={overview.available_years}
+            selectedYear={inspectedYear}
+            onSelectYear={setInspectedYear}
+            disabledYears={resultGraphMetric === 'average' ? [1982] : []}
+            label="Benchmark Season"
+            subtext={`Your Rank in ${inspectedYear}: Top ${userActiveTopPct}%`}
+          />
 
           {/* Historical Percentile Chart */}
           <div className="surface-card" style={{ marginBottom: 24 }}>
@@ -617,7 +568,16 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
 
             <div style={{ height: 320, width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={acrossErasData} margin={{ top: 28, right: 28, left: 0, bottom: 20 }}>
+                <LineChart
+                  data={acrossErasData}
+                  margin={{ top: 28, right: 36, left: 0, bottom: 20 }}
+                  onClick={(e) => {
+                    if (e && e.activeLabel) {
+                      const yr = Number(e.activeLabel);
+                      if (overview.available_years.includes(yr)) setInspectedYear(yr);
+                    }
+                  }}
+                >
                   <CartesianGrid stroke="#1E2536" vertical={false} />
                   <XAxis
                     dataKey="year"
@@ -648,12 +608,28 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
                     x={inspectedYear}
                     stroke="#3B82F6"
                     strokeDasharray="3 3"
-                    label={{
-                      value: `Viewing ${inspectedYear}`,
-                      fill: '#60A5FA',
-                      position: 'top',
-                      fontSize: 11,
-                      offset: 8,
+                    label={(props: any) => {
+                      const { viewBox } = props;
+                      if (!viewBox) return null;
+                      const x = viewBox.x;
+                      const y = viewBox.y - 8;
+                      const isNearRight = inspectedYear >= 2024;
+                      const isNearLeft = inspectedYear <= 2004;
+                      const anchor = isNearRight ? 'end' : isNearLeft ? 'start' : 'middle';
+                      const dx = isNearRight ? -6 : isNearLeft ? 6 : 0;
+                      return (
+                        <text
+                          x={x + dx}
+                          y={y}
+                          fill="#60A5FA"
+                          textAnchor={anchor}
+                          fontSize={11}
+                          fontFamily="JetBrains Mono, monospace"
+                          fontWeight={600}
+                        >
+                          Viewing {inspectedYear}
+                        </text>
+                      );
                     }}
                   />
                   <Line
@@ -673,26 +649,17 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
           {/* Deep Dive into Selected Era Distribution */}
           <div className="surface-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Calendar size={16} style={{ color: 'var(--cube-blue)' }} />
-                <span style={{ fontSize: 14, fontWeight: 700 }}>Inspect Specific Historical Year:</span>
-                <select
-                  className="select-input"
-                  value={inspectedYear}
-                  onChange={(e) => setInspectedYear(Number(e.target.value))}
-                >
-                  {overview.available_years
-                    .filter((yr) => (resultGraphMetric === 'average' ? yr !== 1982 : true))
-                    .map((yr) => (
-                      <option key={yr} value={yr}>
-                        Year {yr}
-                      </option>
-                    ))}
-                </select>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                  Season {inspectedYear} Performance Distribution
+                </h3>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
+                  Showing your solve time ({activeUserTime?.toFixed(2)}s) plotted against all official results recorded in {inspectedYear}.
+                </p>
               </div>
 
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--cube-green)', fontWeight: 600 }}>
-                Your Rank in {inspectedYear}: Top {userActiveTopPct}%
+                Season {inspectedYear} Benchmark: Top {userActiveTopPct}%
               </div>
             </div>
 

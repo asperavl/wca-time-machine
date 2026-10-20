@@ -14,19 +14,30 @@ import {
 import type { OverviewData, YearDetail, MetricType } from '../types';
 import { fetchYearDetail } from '../api';
 import { formatTime } from '../utils/wca';
-import { TrendingUp, GitCompare, ArrowLeft, ArrowRight, Database } from 'lucide-react';
+import { TrendingUp, GitCompare, Database } from 'lucide-react';
+
+import { YearScrubberBar } from './YearScrubberBar';
 
 interface AnalyticsViewProps {
   overview: OverviewData;
   initialYear?: number;
+  selectedYear?: number;
+  onSelectYear?: (year: number) => void;
 }
 
 type ArchiveMode = 'evolution' | 'compare';
 
-export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialYear = 2024 }) => {
+export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
+  overview,
+  initialYear = 2024,
+  selectedYear: propSelectedYear,
+  onSelectYear: propOnSelectYear,
+}) => {
   const [archiveMode, setArchiveMode] = useState<ArchiveMode>('evolution');
   const [metric, setMetric] = useState<MetricType>('average');
-  const [selectedYear, setSelectedYear] = useState<number>(initialYear);
+  const [internalSelectedYear, setInternalSelectedYear] = useState<number>(initialYear);
+  const selectedYear = propSelectedYear !== undefined ? propSelectedYear : internalSelectedYear;
+  const setSelectedYear = propOnSelectYear || setInternalSelectedYear;
   const [yearDetail, setYearDetail] = useState<YearDetail | null>(null);
 
   // Compare mode states
@@ -150,6 +161,18 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
         </div>
       </div>
 
+      {/* Persistent Pinned Top Year Scrubber Bar */}
+      {archiveMode === 'evolution' && (
+        <YearScrubberBar
+          availableYears={availableYears}
+          selectedYear={selectedYear}
+          onSelectYear={setSelectedYear}
+          disabledYears={metric === 'average' ? [1982] : []}
+          label="Selected Season"
+          subtext={currentStats ? `Median: ${formatTime(currentStats.median)}s | ${currentYearSummary ? currentYearSummary.competitors.toLocaleString() + ' competitors' : ''}` : undefined}
+        />
+      )}
+
       {/* MODE 1: YEAR-BY-YEAR TRENDS */}
       {archiveMode === 'evolution' && (
         <div>
@@ -179,7 +202,16 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
 
             <div style={{ height: 350, width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendChartData} margin={{ top: 28, right: 28, left: 0, bottom: 20 }}>
+                <LineChart
+                  data={trendChartData}
+                  margin={{ top: 28, right: 36, left: 0, bottom: 20 }}
+                  onClick={(e) => {
+                    if (e && e.activeLabel) {
+                      const yr = Number(e.activeLabel);
+                      if (availableYears.includes(yr)) setSelectedYear(yr);
+                    }
+                  }}
+                >
                   <CartesianGrid stroke="#1E2536" strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="year"
@@ -210,12 +242,28 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
                     x={selectedYear}
                     stroke="#EAB308"
                     strokeDasharray="3 3"
-                    label={{
-                      value: `Inspecting ${selectedYear}`,
-                      fill: '#EAB308',
-                      position: 'top',
-                      fontSize: 11,
-                      offset: 8,
+                    label={(props: any) => {
+                      const { viewBox } = props;
+                      if (!viewBox) return null;
+                      const x = viewBox.x;
+                      const y = viewBox.y - 8;
+                      const isNearRight = selectedYear >= 2024;
+                      const isNearLeft = selectedYear <= 2004;
+                      const anchor = isNearRight ? 'end' : isNearLeft ? 'start' : 'middle';
+                      const dx = isNearRight ? -6 : isNearLeft ? 6 : 0;
+                      return (
+                        <text
+                          x={x + dx}
+                          y={y}
+                          fill="#EAB308"
+                          textAnchor={anchor}
+                          fontSize={11}
+                          fontFamily="JetBrains Mono, monospace"
+                          fontWeight={600}
+                        >
+                          Inspecting {selectedYear}
+                        </text>
+                      );
                     }}
                   />
                   <Line
@@ -249,46 +297,16 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
             </div>
           </div>
 
-          {/* Year Scrubber & Deep-Dive Distribution */}
+          {/* Deep-Dive Distribution for Selected Year */}
           <div className="surface-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 13, fontWeight: 700 }}>Inspect Season:</span>
-                <button
-                  className="btn-secondary btn-sm"
-                  onClick={() => {
-                    const idx = availableYears.indexOf(selectedYear);
-                    if (idx > 0) setSelectedYear(availableYears[idx - 1]);
-                  }}
-                  disabled={selectedYear === availableYears[0]}
-                  title="Previous Year"
-                >
-                  <ArrowLeft size={13} />
-                </button>
-
-                <select
-                  className="select-input"
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(Number(e.target.value))}
-                >
-                  {availableYears.map((yr) => (
-                    <option key={yr} value={yr}>
-                      Year {yr}
-                    </option>
-                  ))}
-                </select>
-
-                <button
-                  className="btn-secondary btn-sm"
-                  onClick={() => {
-                    const idx = availableYears.indexOf(selectedYear);
-                    if (idx < availableYears.length - 1) setSelectedYear(availableYears[idx + 1]);
-                  }}
-                  disabled={selectedYear === availableYears[availableYears.length - 1]}
-                  title="Next Year"
-                >
-                  <ArrowRight size={13} />
-                </button>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
+                  Season {selectedYear} Performance Distribution
+                </h3>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
+                  Histogram of official {metric === 'average' ? 'Ao5 averages' : 'single times'} recorded across all sanctioned competitions in {selectedYear}.
+                </p>
               </div>
 
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>

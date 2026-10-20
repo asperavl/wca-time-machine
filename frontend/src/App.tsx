@@ -17,6 +17,7 @@ export const App: React.FC = () => {
   // Guard flag for mid-session protection
   const [activeSessionInProgress, setActiveSessionInProgress] = useState<boolean>(false);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
+  const [activeYear, setActiveYear] = useState<number>(2024);
 
   useEffect(() => {
     fetchOverview()
@@ -157,7 +158,11 @@ export const App: React.FC = () => {
           />
         </div>
         <div style={{ display: currentTab === 'analytics' ? 'block' : 'none' }}>
-          <AnalyticsView overview={overview} />
+          <AnalyticsView
+            overview={overview}
+            selectedYear={activeYear}
+            onSelectYear={setActiveYear}
+          />
         </div>
         <div style={{ display: currentTab === 'timemachine' ? 'block' : 'none' }}>
           <TimeMachineView
@@ -166,6 +171,8 @@ export const App: React.FC = () => {
             activeSessionInProgress={activeSessionInProgress}
             setActiveSessionInProgress={setActiveSessionInProgress}
             onTimerRunningChange={setIsTimerRunning}
+            selectedYear={activeYear}
+            onSelectYear={setActiveYear}
           />
         </div>
       </main>
