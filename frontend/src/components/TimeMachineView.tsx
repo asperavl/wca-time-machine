@@ -21,12 +21,14 @@ interface TimeMachineViewProps {
   overview: OverviewData;
   activeSessionInProgress?: boolean;
   setActiveSessionInProgress?: (inProgress: boolean) => void;
+  onTimerRunningChange?: (isRunning: boolean) => void;
   isActiveTab?: boolean;
 }
 
 export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
   overview,
   setActiveSessionInProgress,
+  onTimerRunningChange,
   isActiveTab = true,
 }) => {
   // Scrambles for the 5 solves (persisted across tab switches and refreshes)
@@ -98,6 +100,12 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
     onSolveFinished: handleSolveFinished,
     disabled: !isActiveTab || manualInputMode || solves.length >= 5,
   });
+
+  // Notify parent if the timer is actively running or primed
+  useEffect(() => {
+    const isMidSolve = timer.status === 'RUNNING' || timer.status === 'HOLDING' || timer.status === 'READY';
+    onTimerRunningChange?.(isMidSolve);
+  }, [timer.status, onTimerRunningChange]);
 
   // Sync activeSessionInProgress flag to parent if callback provided
   useEffect(() => {

@@ -178,6 +178,18 @@ body {
   border-bottom: 2px solid var(--cube-blue);
 }
 
+.view-mode-btn:disabled,
+.view-mode-btn.nav-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.brand-section.nav-locked {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+}
+
 /* Surfaces */
 .surface-card {
   background: var(--surface-card);

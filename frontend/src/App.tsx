@@ -16,6 +16,7 @@ export const App: React.FC = () => {
 
   // Guard flag for mid-session protection
   const [activeSessionInProgress, setActiveSessionInProgress] = useState<boolean>(false);
+  const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
 
   useEffect(() => {
     fetchOverview()
@@ -30,7 +31,19 @@ export const App: React.FC = () => {
       });
   }, []);
 
+  // Prevent accidental page close or refresh mid-solve
+  useEffect(() => {
+    if (!isTimerRunning) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isTimerRunning]);
+
   const handleTabSwitch = (targetTab: MainTab) => {
+    if (isTimerRunning) return;
     if (targetTab === currentTab) return;
     setCurrentTab(targetTab);
     localStorage.setItem('wca_time_machine_tab', targetTab);
@@ -80,10 +93,10 @@ export const App: React.FC = () => {
         {/* Header */}
         <header className="app-header">
           <div
-            className="brand-section"
-            style={{ cursor: 'pointer' }}
-            onClick={() => handleTabSwitch('landing')}
-            title="Return to Overview"
+            className={`brand-section ${isTimerRunning ? 'nav-locked' : ''}`}
+            style={{ cursor: isTimerRunning ? 'not-allowed' : 'pointer' }}
+            onClick={() => !isTimerRunning && handleTabSwitch('landing')}
+            title={isTimerRunning ? 'Solve in progress: complete solve first' : 'Return to Overview'}
           >
             <div className="rubik-grid-icon" title="WCA Rubik's Chrono-Spectrogram">
               <div style={{ background: 'var(--cube-white)' }} />
@@ -107,8 +120,10 @@ export const App: React.FC = () => {
           {/* Primary View Switcher */}
           <nav className="view-mode-tabs" aria-label="Main Navigation">
             <button
-              className={`view-mode-btn mode-overview ${currentTab === 'landing' ? 'active' : ''}`}
+              className={`view-mode-btn mode-overview ${currentTab === 'landing' ? 'active' : ''} ${isTimerRunning ? 'nav-disabled' : ''}`}
               onClick={() => handleTabSwitch('landing')}
+              disabled={isTimerRunning}
+              title={isTimerRunning ? 'Solve in progress: complete solve first' : 'Overview'}
             >
               <LayoutGrid size={15} style={{ color: currentTab === 'landing' ? 'var(--cube-white)' : 'inherit' }} />
               Overview
@@ -116,13 +131,16 @@ export const App: React.FC = () => {
             <button
               className={`view-mode-btn mode-tm ${currentTab === 'timemachine' ? 'active' : ''}`}
               onClick={() => handleTabSwitch('timemachine')}
+              title="Time Machine"
             >
               <Clock size={15} style={{ color: currentTab === 'timemachine' ? 'var(--cube-yellow)' : 'inherit' }} />
               Time Machine
             </button>
             <button
-              className={`view-mode-btn mode-archive ${currentTab === 'analytics' ? 'active' : ''}`}
+              className={`view-mode-btn mode-archive ${currentTab === 'analytics' ? 'active' : ''} ${isTimerRunning ? 'nav-disabled' : ''}`}
               onClick={() => handleTabSwitch('analytics')}
+              disabled={isTimerRunning}
+              title={isTimerRunning ? 'Solve in progress: complete solve first' : 'Historical Archive'}
             >
               <BarChart2 size={15} style={{ color: currentTab === 'analytics' ? 'var(--cube-blue)' : 'inherit' }} />
               Historical Archive
@@ -147,6 +165,7 @@ export const App: React.FC = () => {
             isActiveTab={currentTab === 'timemachine'}
             activeSessionInProgress={activeSessionInProgress}
             setActiveSessionInProgress={setActiveSessionInProgress}
+            onTimerRunningChange={setIsTimerRunning}
           />
         </div>
       </main>
