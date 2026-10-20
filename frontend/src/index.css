@@ -257,7 +257,7 @@ body {
   letter-spacing: 0.02em;
 }
 
-/* 5-Solve Adjudication Cassette */
+/* 5-Solve Session */
 .solve-cassette {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -271,7 +271,7 @@ body {
   }
 }
 
-/* Scrollable WCA Adjudication Breakdown & Solving Cassette */
+/* Scrollable 5-Solve Breakdown & Solving Strip */
 .solve-cassette-scrollable {
   display: flex !important;
   gap: 12px;

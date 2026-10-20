@@ -8,13 +8,13 @@ interface LandingViewProps {
 }
 
 export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode }) => {
-  // Epochs derived dynamically from WCA overview data
+  // Milestones derived dynamically from WCA overview data
   const epochs = [
-    { year: 1982, name: 'Budapest 1982', desc: 'Genesis', median: '29.1s' },
-    { year: 2005, name: 'Worlds 2005', desc: 'DIY & CFOP', median: '25.4s' },
-    { year: 2013, name: 'Worlds 2013', desc: 'DaYan Plastic', median: '18.2s' },
-    { year: 2019, name: 'Worlds 2019', desc: 'Factory Magnets', median: '16.0s' },
-    { year: 2026, name: 'Season 2026', desc: 'Ball-Core MagLev', median: '13.8s' },
+    { year: 1982, name: 'Budapest 1982', desc: 'First World Championship', median: '29.1s' },
+    { year: 2005, name: 'Worlds 2005', desc: 'WCA Founded & CFOP', median: '25.4s' },
+    { year: 2013, name: 'Worlds 2013', desc: 'Modern Hardware Era', median: '18.2s' },
+    { year: 2019, name: 'Worlds 2019', desc: 'Magnetic Positioning', median: '16.0s' },
+    { year: 2026, name: 'Season 2026', desc: 'Current Competition Year', median: '13.8s' },
   ];
 
   return (
@@ -52,22 +52,22 @@ export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode
                 </div>
                 <h3 className="preview-title">Time Machine</h3>
               </div>
-              <span className="preview-tag tag-tm">WCA 9f1 Ao5</span>
+              <span className="preview-tag tag-tm">5 Solves (Ao5)</span>
             </div>
 
             <p className="preview-description">
-              Do 5 solves using the spacebar timer (or enter times). Automatically trims best and worst times and benchmarks your Ao5 across all 25 competition eras.
+              Do 5 solves using the spacebar timer (or enter your times). Trims your fastest and slowest solves and compares your Ao5 across all 25 competition years.
             </p>
 
             {/* Micro-Cassette Visual Mockup */}
             <div className="micro-cassette-box">
-              <div className="micro-cassette-label">ADJUDICATION PREVIEW (TRIMMED AO5)</div>
+              <div className="micro-cassette-label">SAMPLE 5-SOLVE SESSION (AO5)</div>
               <div className="micro-cassette-pods">
                 <div className="micro-pod">
                   <span className="mp-idx">#1</span>
                   <span className="mp-time">12.40</span>
                 </div>
-                <div className="micro-pod mp-best" title="Trimmed fastest solve">
+                <div className="micro-pod mp-best" title="Fastest solve (trimmed from average)">
                   <span className="mp-idx">#2</span>
                   <span className="mp-time">(9.85)</span>
                 </div>
@@ -75,7 +75,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode
                   <span className="mp-idx">#3</span>
                   <span className="mp-time">11.90</span>
                 </div>
-                <div className="micro-pod mp-worst" title="Trimmed slowest solve">
+                <div className="micro-pod mp-worst" title="Slowest solve (trimmed from average)">
                   <span className="mp-idx">#4</span>
                   <span className="mp-time">(15.20)</span>
                 </div>
@@ -124,17 +124,17 @@ export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode
                 </div>
                 <h3 className="preview-title">Historical Archive</h3>
               </div>
-              <span className="preview-tag tag-archive">25 Seasons</span>
+              <span className="preview-tag tag-archive">1982 to 2026</span>
             </div>
 
             <p className="preview-description">
-              Explore speedcubing macroevolution without solving. Inspect median compression curves, top 10% thresholds, and compare any two eras side by side.
+              Explore how 3×3 times dropped over four decades without solving. Check median times, top 10% cutoffs, and compare any two years side by side.
             </p>
 
             {/* Micro-Progression Timeline Mockup */}
             <div className="micro-archive-box">
               <div className="micro-archive-label">
-                <span>MEDIAN COMPRESSION OVER TIME</span>
+                <span>MEDIAN TIME BY YEAR</span>
                 <span className="micro-archive-delta">
                   <TrendingDown size={12} /> -52.7%
                 </span>
@@ -186,9 +186,9 @@ export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode
         </div>
       </div>
 
-      {/* Epoch Rail: 5 Historic Speedcubing Milestones */}
+      {/* Milestone Rail: 5 Historic Speedcubing Milestones */}
       <div className="epoch-rail-container">
-        <div className="epoch-rail-title">SPEEDCUBING EPOCHS (1982 TO 2026)</div>
+        <div className="epoch-rail-title">KEY COMPETITION MILESTONES (1982 TO 2026)</div>
         <div className="epoch-rail-nodes">
           {epochs.map((ep) => (
             <div

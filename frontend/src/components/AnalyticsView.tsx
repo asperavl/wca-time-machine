@@ -135,7 +135,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
           >
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <TrendingUp size={13} style={{ color: archiveMode === 'evolution' ? 'var(--cube-blue)' : 'inherit' }} />
-              Macro Evolution & Deep-Dive
+              Year-by-Year Trends
             </span>
           </button>
           <button
@@ -144,13 +144,13 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
           >
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <GitCompare size={13} style={{ color: archiveMode === 'compare' ? 'var(--cube-orange)' : 'inherit' }} />
-              Compare Two Eras
+              Compare Two Years
             </span>
           </button>
         </div>
       </div>
 
-      {/* MODE 1: MACRO EVOLUTION & YEAR DEEP-DIVE */}
+      {/* MODE 1: YEAR-BY-YEAR TRENDS */}
       {archiveMode === 'evolution' && (
         <div>
           {/* All-Time Trends Chart */}
@@ -158,7 +158,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
               <div>
                 <h2 style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)' }}>
-                  All-Time Performance Compression (1982 to 2026)
+                  All-Time Speed Progression (1982 to 2026)
                 </h2>
                 <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
                   Tracking the downward progression of official {metric === 'average' ? 'Ao5 averages' : 'single times'} across 25 WCA seasons.
@@ -169,10 +169,10 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
                   ● Median (P50)
                 </span>
                 <span style={{ color: 'var(--cube-orange)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  ■ Elite Top 10% (P10)
+                  ■ Top 10% (P10)
                 </span>
                 <span style={{ color: 'var(--cube-yellow)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  — Year Record (Min)
+                  ● Fastest of Year (Min)
                 </span>
               </div>
             </div>
@@ -318,7 +318,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
                   </div>
 
                   <div className="stat-box border-orange">
-                    <div className="stat-box-label">Elite Threshold (Top 10%)</div>
+                    <div className="stat-box-label">Top 10% Cutoff (P10)</div>
                     <div className="stat-box-val" style={{ color: 'var(--cube-orange)' }}>
                       {formatTime(currentStats?.p10)}s
                     </div>
@@ -326,7 +326,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
                   </div>
 
                   <div className="stat-box border-green">
-                    <div className="stat-box-label">Mathematical Mean</div>
+                    <div className="stat-box-label">Mean Time</div>
                     <div className="stat-box-val" style={{ color: 'var(--cube-green)' }}>
                       {formatTime(currentStats?.mean)}s
                     </div>
@@ -420,7 +420,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                 <div>
                   <span style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--cube-blue)', fontFamily: 'var(--font-mono)', fontWeight: 700, display: 'block', marginBottom: 4 }}>
-                    Era A (Cube Blue)
+                    Year A (Cube Blue)
                   </span>
                   <select
                     className="select-input"
@@ -439,7 +439,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
 
                 <div>
                   <span style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--cube-orange)', fontFamily: 'var(--font-mono)', fontWeight: 700, display: 'block', marginBottom: 4 }}>
-                    Era B (Cube Orange)
+                    Year B (Cube Orange)
                   </span>
                   <select
                     className="select-input"
@@ -579,7 +579,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ overview, initialY
         </div>
 
         <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-          <strong>Regulation Note:</strong> All statistics strictly conform to official World Cube Association rules. Average of 5 calculations apply Regulation 9f1 trimming (best and worst times discarded, middle three averaged). DNF and DNS non-finishes are recorded in participation tallies but excluded from solve time distributions.
+          <strong>Average Calculation:</strong> Official WCA Average of 5 (Ao5) drops the fastest and slowest times and averages the middle three attempts. Non-finishes (DNF and DNS) are included in participant totals but excluded from solve time distributions.
         </div>
       </div>
     </div>

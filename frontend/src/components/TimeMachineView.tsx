@@ -370,10 +370,10 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
             </div>
           )}
 
-          {/* 5-Solve Adjudication Cassette */}
+          {/* 5-Solve Session */}
           <div>
             <div style={{ fontSize: 12, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
-              Solve Adjudication Cassette (5 Solves Required for Ao5)
+              5-Solve Session (Ao5)
             </div>
 
             <div className="solve-cassette solve-cassette-scrollable">
@@ -426,11 +426,11 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
       ) : (
         /* COMPLETED SESSION: HISTORICAL SPECTROGRAM UNLOCKED */
         <div>
-          {/* Main Ao5 Adjudication Headline */}
+          {/* Main Ao5 Headline */}
           <div className="benchmark-banner">
             <div>
               <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--cube-yellow)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 4 }}>
-                WCA REGULATION 9F1 ADJUDICATED RESULT
+                YOUR AO5 RESULT
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
                 <span className="ao5-headline">
@@ -446,7 +446,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
                 )}
               </div>
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6 }}>
-                Fastest and slowest times trimmed automatically. Benchmarked against 1,880,000+ official competition rounds.
+                Fastest and slowest times trimmed automatically. Compared against 1,880,000+ official competition rounds.
               </p>
             </div>
 
@@ -455,10 +455,10 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
             </button>
           </div>
 
-          {/* 5-Solve Cassette with WCA Trimming Badges */}
+          {/* 5-Solve Breakdown with Trimming Badges */}
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 12, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
-              WCA Adjudication Breakdown
+              Official Ao5 Breakdown
             </div>
 
             <div className="solve-cassette solve-cassette-scrollable">
@@ -508,14 +508,14 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
             </div>
           </div>
 
-          {/* Historical Placement Chronicle Across Major Milestones */}
+          {/* Historical Placement Across Major Milestones */}
           <div className="surface-card" style={{ marginBottom: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
               <Trophy size={16} style={{ color: 'var(--cube-yellow)' }} />
               <h3 style={{ fontSize: 15, fontWeight: 700 }}>Where Your {ao5Calc.ao5Sec?.toFixed(2)}s Would Have Placed In History</h3>
             </div>
             <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-              Simulated tournament placement if your 5-solve average was entered in historic speedcubing eras.
+              How your 5-solve average compares to median competition times across historical years.
             </p>
 
             <div className="placement-strip">
@@ -536,11 +536,11 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
             </div>
           </div>
 
-          {/* Across the Eras Longitudinal Chart */}
+          {/* Historical Percentile Chart */}
           <div className="surface-card" style={{ marginBottom: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
               <div>
-                <h3 style={{ fontSize: 16, fontWeight: 700 }}>Across the Eras: Your Global Standing (1982 to 2026)</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 700 }}>Your Global Percentile Over Time (1982 to 2026)</h3>
                 <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
                   Showing your global percentile across speedcubing history for your {resultGraphMetric === 'average' ? `Ao5 (${ao5Calc.ao5Sec?.toFixed(2)}s)` : `Single (${ao5Calc.bestSingleSec?.toFixed(2)}s)`}. Top 0% is World #1.
                 </p>

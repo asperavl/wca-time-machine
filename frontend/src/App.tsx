@@ -98,7 +98,7 @@ export const App: React.FC = () => {
             onClick={() => !isTimerRunning && handleTabSwitch('landing')}
             title={isTimerRunning ? 'Solve in progress: complete solve first' : 'Return to Overview'}
           >
-            <div className="rubik-grid-icon" title="WCA Rubik's Chrono-Spectrogram">
+            <div className="rubik-grid-icon" title="WCA Time Machine">
               <div style={{ background: 'var(--cube-white)' }} />
               <div style={{ background: 'var(--cube-yellow)' }} />
               <div style={{ background: 'var(--cube-green)' }} />
@@ -112,7 +112,7 @@ export const App: React.FC = () => {
             <div>
               <h1 className="brand-title">
                 WCA TIME MACHINE
-                <span className="brand-badge">3×3 HISTORICAL BENCHMARK</span>
+                <span className="brand-badge">3×3 HISTORICAL ARCHIVE</span>
               </h1>
             </div>
           </div>
