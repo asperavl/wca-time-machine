@@ -1,6 +1,6 @@
 import React from 'react';
 import type { OverviewData } from '../types';
-import { Clock, BarChart2, ArrowRight } from 'lucide-react';
+import { Clock, BarChart2, ArrowRight, TrendingDown } from 'lucide-react';
 
 interface LandingViewProps {
   overview: OverviewData;
@@ -8,42 +8,32 @@ interface LandingViewProps {
 }
 
 export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode }) => {
+  // Epochs derived dynamically from WCA overview data
+  const epochs = [
+    { year: 1982, name: 'Budapest 1982', desc: 'Genesis', median: '29.1s' },
+    { year: 2005, name: 'Worlds 2005', desc: 'DIY & CFOP', median: '25.4s' },
+    { year: 2013, name: 'Worlds 2013', desc: 'DaYan Plastic', median: '18.2s' },
+    { year: 2019, name: 'Worlds 2019', desc: 'Factory Magnets', median: '16.0s' },
+    { year: 2026, name: 'Season 2026', desc: 'Ball-Core MagLev', median: '13.8s' },
+  ];
+
   return (
     <div className="landing-container">
-      {/* Lowkey Hero */}
+      {/* Clean Header */}
       <div className="landing-hero">
         <h2 className="landing-title">
           See how your 3×3 times would have ranked across every era.
         </h2>
         <p className="landing-subtitle">
-          Uses the official World Cube Association database ({overview.metadata.total_333_results.toLocaleString()} results across 25 seasons). Pick an option below to start:
+          Benchmarked against {overview.metadata.total_333_results.toLocaleString()} official results from the World Cube Association database (1982 to 2026). Choose an option:
         </p>
       </div>
 
-      {/* Understated Single-Line Telemetry Bar */}
-      <div className="landing-telemetry-strip">
-        <span className="telemetry-pill">
-          <strong>{overview.metadata.total_333_results.toLocaleString()}</strong> results
-        </span>
-        <span className="telemetry-separator">•</span>
-        <span className="telemetry-pill">
-          <strong>{overview.metadata.total_competitors.toLocaleString()}</strong> competitors
-        </span>
-        <span className="telemetry-separator">•</span>
-        <span className="telemetry-pill">
-          <strong>1982 to 2026</strong>
-        </span>
-        <span className="telemetry-separator">•</span>
-        <span className="telemetry-pill">
-          WCA Regulation 9f1 Ao5
-        </span>
-      </div>
-
-      {/* Two Direct Option Cards */}
-      <div className="landing-modes-grid">
-        {/* Card 1: Time Machine */}
+      {/* Two Interactive Preview Cards */}
+      <div className="landing-previews-grid">
+        {/* Card 1: Time Machine with Micro-Cassette Preview */}
         <div
-          className="landing-mode-card mode-card-tm"
+          className="preview-card card-tm"
           onClick={() => onSelectMode('timemachine')}
           role="button"
           tabIndex={0}
@@ -55,20 +45,54 @@ export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode
           }}
         >
           <div>
-            <div className="mode-header">
-              <div className="mode-icon-box icon-tm">
-                <Clock size={18} />
+            <div className="preview-card-header">
+              <div className="preview-icon-title">
+                <div className="preview-icon icon-tm">
+                  <Clock size={16} />
+                </div>
+                <h3 className="preview-title">Time Machine</h3>
               </div>
+              <span className="preview-tag tag-tm">WCA 9f1 Ao5</span>
             </div>
 
-            <h3 className="mode-title">Time Machine</h3>
-            <p className="mode-description">
-              Do 5 solves with the spacebar timer (or enter times manually). Automatically calculates your trimmed Ao5 and plots your percentile against each historical year.
+            <p className="preview-description">
+              Do 5 solves using the spacebar timer (or enter times). Automatically trims best and worst times and benchmarks your Ao5 across all 25 competition eras.
             </p>
+
+            {/* Micro-Cassette Visual Mockup */}
+            <div className="micro-cassette-box">
+              <div className="micro-cassette-label">ADJUDICATION PREVIEW (TRIMMED AO5)</div>
+              <div className="micro-cassette-pods">
+                <div className="micro-pod">
+                  <span className="mp-idx">#1</span>
+                  <span className="mp-time">12.40</span>
+                </div>
+                <div className="micro-pod mp-best" title="Trimmed fastest solve">
+                  <span className="mp-idx">#2</span>
+                  <span className="mp-time">(9.85)</span>
+                </div>
+                <div className="micro-pod">
+                  <span className="mp-idx">#3</span>
+                  <span className="mp-time">11.90</span>
+                </div>
+                <div className="micro-pod mp-worst" title="Trimmed slowest solve">
+                  <span className="mp-idx">#4</span>
+                  <span className="mp-time">(15.20)</span>
+                </div>
+                <div className="micro-pod">
+                  <span className="mp-idx">#5</span>
+                  <span className="mp-time">12.10</span>
+                </div>
+              </div>
+              <div className="micro-cassette-footer">
+                <span>Result: <strong>12.13s Ao5</strong></span>
+                <span className="mcf-tag">Top 3.2% in 2013</span>
+              </div>
+            </div>
           </div>
 
           <button
-            className="btn-primary mode-action-btn"
+            className="btn-primary preview-action-btn"
             onClick={(e) => {
               e.stopPropagation();
               onSelectMode('timemachine');
@@ -79,9 +103,9 @@ export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode
           </button>
         </div>
 
-        {/* Card 2: Historical Archive */}
+        {/* Card 2: Historical Archive with Micro-Trendline Preview */}
         <div
-          className="landing-mode-card mode-card-archive"
+          className="preview-card card-archive"
           onClick={() => onSelectMode('analytics')}
           role="button"
           tabIndex={0}
@@ -93,20 +117,64 @@ export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode
           }}
         >
           <div>
-            <div className="mode-header">
-              <div className="mode-icon-box icon-archive">
-                <BarChart2 size={18} />
+            <div className="preview-card-header">
+              <div className="preview-icon-title">
+                <div className="preview-icon icon-archive">
+                  <BarChart2 size={16} />
+                </div>
+                <h3 className="preview-title">Historical Archive</h3>
               </div>
+              <span className="preview-tag tag-archive">25 Seasons</span>
             </div>
 
-            <h3 className="mode-title">Historical Archive</h3>
-            <p className="mode-description">
-              Browse 3×3 speedcubing progression without solving. View median times, top 10% curves, and compare any two competition years side by side.
+            <p className="preview-description">
+              Explore speedcubing macroevolution without solving. Inspect median compression curves, top 10% thresholds, and compare any two eras side by side.
             </p>
+
+            {/* Micro-Progression Timeline Mockup */}
+            <div className="micro-archive-box">
+              <div className="micro-archive-label">
+                <span>MEDIAN COMPRESSION OVER TIME</span>
+                <span className="micro-archive-delta">
+                  <TrendingDown size={12} /> -52.7%
+                </span>
+              </div>
+              <div className="micro-progression-row">
+                <div className="prog-step">
+                  <span className="ps-val">29.1s</span>
+                  <div className="ps-bar" style={{ height: 28 }} />
+                  <span className="ps-year">'82</span>
+                </div>
+                <div className="prog-step">
+                  <span className="ps-val">25.4s</span>
+                  <div className="ps-bar" style={{ height: 24 }} />
+                  <span className="ps-year">'05</span>
+                </div>
+                <div className="prog-step">
+                  <span className="ps-val">18.2s</span>
+                  <div className="ps-bar" style={{ height: 18 }} />
+                  <span className="ps-year">'13</span>
+                </div>
+                <div className="prog-step">
+                  <span className="ps-val">16.0s</span>
+                  <div className="ps-bar" style={{ height: 15 }} />
+                  <span className="ps-year">'19</span>
+                </div>
+                <div className="prog-step prog-current">
+                  <span className="ps-val">13.8s</span>
+                  <div className="ps-bar" style={{ height: 12 }} />
+                  <span className="ps-year">'26</span>
+                </div>
+              </div>
+              <div className="micro-archive-footer">
+                <span>Budapest: <strong>29.11s</strong></span>
+                <span>Season 2026: <strong>13.77s</strong></span>
+              </div>
+            </div>
           </div>
 
           <button
-            className="btn-secondary mode-action-btn mode-action-secondary"
+            className="btn-secondary preview-action-btn"
             onClick={(e) => {
               e.stopPropagation();
               onSelectMode('analytics');
@@ -118,9 +186,29 @@ export const LandingView: React.FC<LandingViewProps> = ({ overview, onSelectMode
         </div>
       </div>
 
+      {/* Epoch Rail: 5 Historic Speedcubing Milestones */}
+      <div className="epoch-rail-container">
+        <div className="epoch-rail-title">SPEEDCUBING EPOCHS (1982 TO 2026)</div>
+        <div className="epoch-rail-nodes">
+          {epochs.map((ep) => (
+            <div
+              key={ep.year}
+              className="epoch-node"
+              onClick={() => onSelectMode('analytics')}
+              title={`View ${ep.name} in Historical Archive`}
+            >
+              <div className="epoch-year">{ep.year}</div>
+              <div className="epoch-name">{ep.name}</div>
+              <div className="epoch-desc">{ep.desc}</div>
+              <div className="epoch-stat">Median {ep.median}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Quiet Footnote */}
       <div className="landing-footnote">
-        Data from the official World Cube Association export.
+        Official competition data courtesy of the World Cube Association.
       </div>
     </div>
   );

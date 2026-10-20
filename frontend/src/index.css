@@ -602,7 +602,7 @@ body {
 
 /* Landing Page Styles */
 .landing-container {
-  max-width: 920px;
+  max-width: 960px;
   margin: 16px auto 40px auto;
 }
 
@@ -612,82 +612,71 @@ body {
 }
 
 .landing-title {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
   color: var(--text-primary);
-  max-width: 680px;
-  margin: 0 auto 10px auto;
+  max-width: 780px;
+  margin: 0 auto 14px auto;
 }
 
 .landing-subtitle {
-  font-size: 14px;
+  font-size: 15.5px;
   color: var(--text-secondary);
-  max-width: 580px;
+  max-width: 640px;
   margin: 0 auto;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-.landing-telemetry-strip {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 28px;
-  font-size: 12.5px;
-  color: var(--text-tertiary);
-}
-
-.telemetry-pill strong {
-  color: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-weight: 600;
-}
-
-.telemetry-separator {
-  color: var(--border-subtle);
-}
-
-.landing-modes-grid {
+/* Two Previews Grid */
+.landing-previews-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 18px;
   margin-bottom: 20px;
 }
 
-.landing-mode-card {
+.preview-card {
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 24px;
+  padding: 22px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: border-color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
-.landing-mode-card:hover {
+.preview-card:hover {
   border-color: var(--border-strong);
 }
 
-.mode-card-tm:hover {
+.card-tm:hover {
   border-color: var(--cube-yellow);
 }
 
-.mode-card-archive:hover {
+.card-archive:hover {
   border-color: var(--cube-blue);
 }
 
-.mode-header {
-  margin-bottom: 12px;
+.preview-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
-.mode-icon-box {
-  width: 34px;
-  height: 34px;
+.preview-icon-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.preview-icon {
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-xs);
   display: inline-flex;
   align-items: center;
@@ -695,45 +684,277 @@ body {
 }
 
 .icon-tm {
-  background: rgba(234, 179, 8, 0.1);
+  background: rgba(234, 179, 8, 0.12);
   color: var(--cube-yellow);
 }
 
 .icon-archive {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(59, 130, 246, 0.12);
   color: var(--cube-blue);
 }
 
-.mode-title {
+.preview-title {
   font-size: 17px;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+.preview-tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.02em;
+}
+
+.tag-tm {
+  color: var(--cube-yellow);
+  background: rgba(234, 179, 8, 0.08);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+}
+
+.tag-archive {
+  color: var(--cube-blue);
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.preview-description {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+/* Micro-Cassette Mockup inside Card 1 */
+.micro-cassette-box {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 20px;
+}
+
+.micro-cassette-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
   margin-bottom: 8px;
 }
 
-.mode-description {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  margin-bottom: 24px;
+.micro-cassette-pods {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
-.mode-action-btn {
+.micro-pod {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 3px;
+  padding: 6px 3px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mp-idx {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  color: var(--text-tertiary);
+}
+
+.mp-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mp-best {
+  border-color: var(--cube-green);
+  background: rgba(34, 197, 94, 0.06);
+}
+.mp-best .mp-time {
+  color: var(--cube-green);
+}
+
+.mp-worst {
+  border-color: var(--cube-red);
+  background: rgba(239, 68, 68, 0.06);
+}
+.mp-worst .mp-time {
+  color: var(--cube-red);
+}
+
+.micro-cassette-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.mcf-tag {
+  color: var(--cube-yellow);
+  font-weight: 600;
+}
+
+/* Micro-Trendline Mockup inside Card 2 */
+.micro-archive-box {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 20px;
+}
+
+.micro-archive-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: 14px;
+}
+
+.micro-archive-delta {
+  color: var(--cube-green);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.micro-progression-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 10px;
+  padding: 4px 8px 0 8px;
+}
+
+.prog-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.ps-year {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.ps-val {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.ps-bar {
+  width: 14px;
+  background: var(--cube-blue);
+  border-radius: 2px;
+  opacity: 0.75;
+}
+
+.prog-current .ps-bar {
+  background: var(--cube-yellow);
+  opacity: 1;
+}
+
+.micro-archive-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.preview-action-btn {
   width: 100%;
   justify-content: center;
   padding: 10px;
   font-size: 13px;
 }
 
-.mode-action-secondary {
-  background: var(--surface-elevated);
+/* Epoch Rail */
+.epoch-rail-container {
+  background: var(--surface-card);
   border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  margin-bottom: 20px;
 }
 
-.mode-action-secondary:hover {
-  border-color: var(--border-strong);
-  background: var(--surface-hover);
+.epoch-rail-title {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+}
+
+.epoch-rail-nodes {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.epoch-node {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.epoch-node:hover {
+  border-color: var(--cube-blue);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.epoch-year {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.epoch-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.epoch-desc {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+
+.epoch-stat {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--cube-blue);
+  font-weight: 600;
 }
 
 .landing-footnote {
@@ -743,9 +964,12 @@ body {
   margin-top: 14px;
 }
 
-@media (max-width: 700px) {
-  .landing-modes-grid {
+@media (max-width: 768px) {
+  .landing-previews-grid {
     grid-template-columns: 1fr;
+  }
+  .epoch-rail-nodes {
+    grid-template-columns: 1fr 1fr;
   }
   .landing-title {
     font-size: 22px;

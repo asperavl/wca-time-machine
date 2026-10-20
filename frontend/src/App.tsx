@@ -9,10 +9,7 @@ import { Clock, BarChart2, AlertTriangle, LayoutGrid } from 'lucide-react';
 type MainTab = 'landing' | 'analytics' | 'timemachine';
 
 export const App: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<MainTab>(() => {
-    const saved = localStorage.getItem('wca_time_machine_tab') as MainTab | null;
-    return saved === 'analytics' || saved === 'timemachine' ? saved : 'landing';
-  });
+  const [currentTab, setCurrentTab] = useState<MainTab>('landing');
   const [overview, setOverview] = useState<OverviewData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
