@@ -1,5 +1,10 @@
 import type { SolveRecord } from '../types';
 import { randomScrambleForEvent } from 'cubing/scramble';
+import { setSearchDebug } from 'cubing/search';
+
+setSearchDebug({
+  prioritizeEsbuildWorkaroundForWorkerInstantiation: true,
+});
 
 /**
  * Generate an official WCA-compliant random-state 3x3 scramble using cubing.js.
