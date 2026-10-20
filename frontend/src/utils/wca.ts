@@ -1,45 +1,22 @@
 import type { SolveRecord } from '../types';
-
-const FACES = ['U', 'D', 'L', 'R', 'F', 'B'] as const;
-const MODIFIERS = ['', "'", '2'] as const;
-
-// Opposite face groups to prevent cancelling moves (e.g. U D U is invalid)
-const OPPOSITE_AXES: Record<string, string> = {
-  U: 'D',
-  D: 'U',
-  L: 'R',
-  R: 'L',
-  F: 'B',
-  B: 'F',
-};
+import { randomScrambleForEvent } from 'cubing/scramble';
 
 /**
- * Generate a standard random-state-compliant 3x3 scramble string of length 21.
- * Ensures no same face in succession and no opposite face redundancy.
+ * Generate an official WCA-compliant random-state 3x3 scramble using cubing.js.
+ * Uses Herbert Kociemba's Two-Phase Algorithm across all 43 quintillion legal states.
  */
-export function generate3x3Scramble(length = 21): string {
-  const moves: string[] = [];
-  let lastFace = '';
-  let secondLastFace = '';
+export async function generateWcaRandomStateScramble(): Promise<string> {
+  const scramble = await randomScrambleForEvent('333');
+  return scramble.toString();
+}
 
-  for (let i = 0; i < length; i++) {
-    const validFaces = FACES.filter((face) => {
-      if (face === lastFace) return false;
-      if (secondLastFace && OPPOSITE_AXES[face] === lastFace && face === secondLastFace) {
-        return false;
-      }
-      return true;
-    });
-
-    const chosenFace = validFaces[Math.floor(Math.random() * validFaces.length)];
-    const chosenMod = MODIFIERS[Math.floor(Math.random() * MODIFIERS.length)];
-
-    moves.push(`${chosenFace}${chosenMod}`);
-    secondLastFace = lastFace;
-    lastFace = chosenFace;
-  }
-
-  return moves.join(' ');
+/**
+ * Generate multiple official WCA-compliant random-state 3x3 scrambles.
+ */
+export async function generateWcaScrambles(count = 5): Promise<string[]> {
+  const promises = Array.from({ length: count }, () => randomScrambleForEvent('333'));
+  const results = await Promise.all(promises);
+  return results.map((s) => s.toString());
 }
 
 /**

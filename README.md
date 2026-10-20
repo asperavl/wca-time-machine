@@ -59,4 +59,5 @@ The output in `frontend/dist/` can be deployed to any static host (Cloudflare Pa
 ## License & Attribution
 
 - **Code**: Licensed under the [MIT License](LICENSE).
+- **Scrambles**: WCA random-state 3×3 scrambles are powered by [cubing.js](https://github.com/cubing/cubing.js) (Mozilla Public License 2.0).
 - **Data**: Historical speedcubing statistics are derived from the official [World Cube Association](https://www.worldcubeassociation.org/) public export, used under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).

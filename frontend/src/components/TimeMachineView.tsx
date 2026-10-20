@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import type { OverviewData, YearDetail, SolveRecord, MetricType } from '../types';
 import { fetchYearDetail, calculateTopPercentile } from '../api';
-import { generate3x3Scramble, calculateAo5, formatTime, getMoveColorClass } from '../utils/wca';
+import { generateWcaScrambles, calculateAo5, formatTime, getMoveColorClass } from '../utils/wca';
 import { useCubeTimer } from '../hooks/useCubeTimer';
 import { RotateCcw, Check, Copy, Keyboard, Trophy, Calendar } from 'lucide-react';
 
@@ -37,8 +37,9 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
       const saved = sessionStorage.getItem('wca_active_scrambles');
       if (saved) return JSON.parse(saved);
     } catch {}
-    return Array.from({ length: 5 }, () => generate3x3Scramble());
+    return [];
   });
+  const [loadingScrambles, setLoadingScrambles] = useState<boolean>(false);
 
   // Solves recorded so far
   const [solves, setSolves] = useState<SolveRecord[]>(() => {
@@ -72,6 +73,28 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
   // Result percentile graph metric toggle (Ao5 vs Single)
   const [resultGraphMetric, setResultGraphMetric] = useState<MetricType>('average');
 
+  // Fetch official WCA random-state scrambles when none exist
+  useEffect(() => {
+    if (scrambles.length === 0) {
+      setLoadingScrambles(true);
+      let isMounted = true;
+      generateWcaScrambles(5)
+        .then((wcaScrambles) => {
+          if (isMounted) {
+            setScrambles(wcaScrambles);
+            setLoadingScrambles(false);
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to generate WCA scrambles:', err);
+          if (isMounted) setLoadingScrambles(false);
+        });
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [scrambles.length]);
+
   // Synchronize active session state to sessionStorage
   useEffect(() => {
     try {
@@ -84,7 +107,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
   const handleSolveFinished = (finalSec: number) => {
     const newSolve: SolveRecord = {
       id: currentSolveIdx + 1,
-      scramble: scrambles[currentSolveIdx],
+      scramble: scrambles[currentSolveIdx] || '',
       rawTimeSec: finalSec,
       penalty: 'NONE',
       finalTimeSec: finalSec,
@@ -98,7 +121,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
 
   const timer = useCubeTimer({
     onSolveFinished: handleSolveFinished,
-    disabled: !isActiveTab || manualInputMode || solves.length >= 5,
+    disabled: !isActiveTab || manualInputMode || solves.length >= 5 || loadingScrambles || scrambles.length === 0,
   });
 
   // Notify parent if the timer is actively running or primed
@@ -154,7 +177,8 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
   const resetSession = () => {
     setSolves([]);
     setCurrentSolveIdx(0);
-    setScrambles(Array.from({ length: 5 }, () => generate3x3Scramble()));
+    setScrambles([]);
+    setLoadingScrambles(true);
     try {
       sessionStorage.removeItem('wca_active_solves');
       sessionStorage.removeItem('wca_active_scrambles');
@@ -162,9 +186,19 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
     if (setActiveSessionInProgress) {
       setActiveSessionInProgress(false);
     }
+    generateWcaScrambles(5)
+      .then((wcaScrambles) => {
+        setScrambles(wcaScrambles);
+        setLoadingScrambles(false);
+      })
+      .catch((err) => {
+        console.error('Failed to generate WCA scrambles:', err);
+        setLoadingScrambles(false);
+      });
   };
 
   const copyCurrentScramble = () => {
+    if (!scrambles[currentSolveIdx]) return;
     navigator.clipboard.writeText(scrambles[currentSolveIdx]);
     setCopiedScramble(true);
     setTimeout(() => setCopiedScramble(false), 1500);
@@ -308,11 +342,17 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
               className="scramble-strip"
               style={{ marginBottom: 0 }}
             >
-              {scrambles[currentSolveIdx].split(' ').map((move, idx) => (
-                <span key={idx} className={getMoveColorClass(move)} style={{ display: 'inline-block', marginRight: 10 }}>
-                  {move}
+              {loadingScrambles || !scrambles[currentSolveIdx] ? (
+                <span style={{ color: 'var(--text-tertiary)', fontStyle: 'italic', fontSize: 13 }}>
+                  Generating official WCA random-state scramble...
                 </span>
-              ))}
+              ) : (
+                scrambles[currentSolveIdx].split(' ').map((move, idx) => (
+                  <span key={idx} className={getMoveColorClass(move)} style={{ display: 'inline-block', marginRight: 10 }}>
+                    {move}
+                  </span>
+                ))
+              )}
             </div>
           </div>
 
@@ -338,11 +378,12 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
               </div>
 
               <div className="stopwatch-instructions">
-                {timer.status === 'IDLE' && 'HOLD SPACEBAR (OR HOLD SCREEN) TO GET READY'}
-                {timer.status === 'HOLDING' && 'HOLD UNTIL GREEN LOCK...'}
-                {timer.status === 'READY' && 'READY! RELEASE SPACEBAR TO START SOLVING'}
-                {timer.status === 'RUNNING' && 'PRESS ANY KEY OR TAP SCREEN TO STOP'}
-                {timer.status === 'FINISHED' && 'SOLVE LOGGED! HOLD SPACEBAR FOR NEXT SOLVE'}
+                {loadingScrambles && 'GENERATING OFFICIAL WCA RANDOM-STATE SCRAMBLE...'}
+                {!loadingScrambles && timer.status === 'IDLE' && 'HOLD SPACEBAR (OR HOLD SCREEN) TO GET READY'}
+                {!loadingScrambles && timer.status === 'HOLDING' && 'HOLD UNTIL GREEN LOCK...'}
+                {!loadingScrambles && timer.status === 'READY' && 'READY! RELEASE SPACEBAR TO START SOLVING'}
+                {!loadingScrambles && timer.status === 'RUNNING' && 'PRESS ANY KEY OR TAP SCREEN TO STOP'}
+                {!loadingScrambles && timer.status === 'FINISHED' && 'SOLVE LOGGED! HOLD SPACEBAR FOR NEXT SOLVE'}
               </div>
             </div>
           ) : (
@@ -397,8 +438,8 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
                       {s ? (s.penalty === 'DNF' ? 'DNF' : `${s.finalTimeSec?.toFixed(2)}s`) : '--.--'}
                     </div>
 
-                    <div className="solve-pod-scramble" title={scrambles[idx]}>
-                      {scrambles[idx]}
+                    <div className="solve-pod-scramble" title={scrambles[idx] || ''}>
+                      {scrambles[idx] || (loadingScrambles ? 'Generating...' : '--')}
                     </div>
 
                     {s && (
