@@ -22,6 +22,7 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Design and Agent Specs
+# Design and Agent Specs & Docs
 DESIGN.md
 AGENTS.md
+docs/

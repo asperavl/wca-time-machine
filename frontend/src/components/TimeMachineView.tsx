@@ -20,19 +20,43 @@ import { RotateCcw, Check, Copy, Keyboard, Trophy, Calendar } from 'lucide-react
 interface TimeMachineViewProps {
   overview: OverviewData;
   activeSessionInProgress?: boolean;
-  setActiveSessionInProgress: (inProgress: boolean) => void;
+  setActiveSessionInProgress?: (inProgress: boolean) => void;
+  isActiveTab?: boolean;
 }
 
 export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
   overview,
   setActiveSessionInProgress,
+  isActiveTab = true,
 }) => {
-  // Scrambles for the 5 solves
-  const [scrambles, setScrambles] = useState<string[]>(() =>
-    Array.from({ length: 5 }, () => generate3x3Scramble())
-  );
-  const [currentSolveIdx, setCurrentSolveIdx] = useState<number>(0);
-  const [solves, setSolves] = useState<SolveRecord[]>([]);
+  // Scrambles for the 5 solves (persisted across tab switches and refreshes)
+  const [scrambles, setScrambles] = useState<string[]>(() => {
+    try {
+      const saved = sessionStorage.getItem('wca_active_scrambles');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return Array.from({ length: 5 }, () => generate3x3Scramble());
+  });
+
+  // Solves recorded so far
+  const [solves, setSolves] = useState<SolveRecord[]>(() => {
+    try {
+      const saved = sessionStorage.getItem('wca_active_solves');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [];
+  });
+
+  const [currentSolveIdx, setCurrentSolveIdx] = useState<number>(() => {
+    try {
+      const saved = sessionStorage.getItem('wca_active_solves');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return Math.min(parsed.length, 4);
+      }
+    } catch {}
+    return 0;
+  });
 
   // Result inspection year
   const [inspectedYear, setInspectedYear] = useState<number>(2024);
@@ -45,6 +69,14 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
 
   // Result percentile graph metric toggle (Ao5 vs Single)
   const [resultGraphMetric, setResultGraphMetric] = useState<MetricType>('average');
+
+  // Synchronize active session state to sessionStorage
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('wca_active_solves', JSON.stringify(solves));
+      sessionStorage.setItem('wca_active_scrambles', JSON.stringify(scrambles));
+    } catch {}
+  }, [solves, scrambles]);
 
   // Callback when a solve finishes via timer
   const handleSolveFinished = (finalSec: number) => {
@@ -64,13 +96,15 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
 
   const timer = useCubeTimer({
     onSolveFinished: handleSolveFinished,
-    disabled: manualInputMode || solves.length >= 5,
+    disabled: !isActiveTab || manualInputMode || solves.length >= 5,
   });
 
-  // Sync activeSessionInProgress flag to parent
+  // Sync activeSessionInProgress flag to parent if callback provided
   useEffect(() => {
-    const inProgress = solves.length > 0 && solves.length < 5;
-    setActiveSessionInProgress(inProgress);
+    if (setActiveSessionInProgress) {
+      const inProgress = solves.length > 0 && solves.length < 5;
+      setActiveSessionInProgress(inProgress);
+    }
   }, [solves, setActiveSessionInProgress]);
 
   // Load inspected year details once session finishes
@@ -113,7 +147,13 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
     setSolves([]);
     setCurrentSolveIdx(0);
     setScrambles(Array.from({ length: 5 }, () => generate3x3Scramble()));
-    setActiveSessionInProgress(false);
+    try {
+      sessionStorage.removeItem('wca_active_solves');
+      sessionStorage.removeItem('wca_active_scrambles');
+    } catch {}
+    if (setActiveSessionInProgress) {
+      setActiveSessionInProgress(false);
+    }
   };
 
   const copyCurrentScramble = () => {

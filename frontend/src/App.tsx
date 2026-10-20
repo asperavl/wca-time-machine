@@ -35,14 +35,6 @@ export const App: React.FC = () => {
 
   const handleTabSwitch = (targetTab: MainTab) => {
     if (targetTab === currentTab) return;
-
-    if (currentTab === 'timemachine' && activeSessionInProgress && targetTab !== 'timemachine') {
-      const confirmLeave = window.confirm(
-        'You have an active solving session in progress. Leaving now will discard your recorded solves. Are you sure you want to exit?'
-      );
-      if (!confirmLeave) return;
-    }
-
     setCurrentTab(targetTab);
     localStorage.setItem('wca_time_machine_tab', targetTab);
   };
@@ -141,22 +133,25 @@ export const App: React.FC = () => {
           </nav>
         </header>
 
-      {/* Main Content Area */}
+      {/* Main Content Area - Keeping components mounted preserves session state across tab switches */}
       <main>
-        {currentTab === 'landing' && (
+        <div style={{ display: currentTab === 'landing' ? 'block' : 'none' }}>
           <LandingView
             overview={overview}
             onSelectMode={(mode) => handleTabSwitch(mode)}
           />
-        )}
-        {currentTab === 'analytics' && <AnalyticsView overview={overview} />}
-        {currentTab === 'timemachine' && (
+        </div>
+        <div style={{ display: currentTab === 'analytics' ? 'block' : 'none' }}>
+          <AnalyticsView overview={overview} />
+        </div>
+        <div style={{ display: currentTab === 'timemachine' ? 'block' : 'none' }}>
           <TimeMachineView
             overview={overview}
+            isActiveTab={currentTab === 'timemachine'}
             activeSessionInProgress={activeSessionInProgress}
             setActiveSessionInProgress={setActiveSessionInProgress}
           />
-        )}
+        </div>
       </main>
 
       {/* Footer */}
