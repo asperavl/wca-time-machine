@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -15,7 +15,7 @@ import type { OverviewData, YearDetail, SolveRecord, MetricType } from '../types
 import { fetchYearDetail, calculateTopPercentile } from '../api';
 import { generateWcaScrambles, calculateAo5, formatTime, getMoveColorClass } from '../utils/wca';
 import { useCubeTimer } from '../hooks/useCubeTimer';
-import { RotateCcw, Check, Copy, Keyboard, Trophy, Calendar } from 'lucide-react';
+import { RotateCcw, Check, Copy, Keyboard, Trophy, Calendar, AlertCircle } from 'lucide-react';
 
 interface TimeMachineViewProps {
   overview: OverviewData;
@@ -39,7 +39,6 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
     } catch {}
     return [];
   });
-  const [loadingScrambles, setLoadingScrambles] = useState<boolean>(false);
 
   // Solves recorded so far
   const [solves, setSolves] = useState<SolveRecord[]>(() => {
@@ -73,27 +72,39 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
   // Result percentile graph metric toggle (Ao5 vs Single)
   const [resultGraphMetric, setResultGraphMetric] = useState<MetricType>('average');
 
+  // Scramble generation state and monotonic request tracking
+  const [loadingScrambles, setLoadingScrambles] = useState<boolean>(false);
+  const [scrambleError, setScrambleError] = useState<string | null>(null);
+  const scrambleRequestIdRef = useRef<number>(0);
+
+  const fetchScrambles = useCallback(() => {
+    const requestId = ++scrambleRequestIdRef.current;
+    setLoadingScrambles(true);
+    setScrambleError(null);
+
+    generateWcaScrambles(5)
+      .then((wcaScrambles) => {
+        if (requestId === scrambleRequestIdRef.current) {
+          setScrambles(wcaScrambles);
+          setLoadingScrambles(false);
+          setScrambleError(null);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to generate WCA scrambles:', err);
+        if (requestId === scrambleRequestIdRef.current) {
+          setLoadingScrambles(false);
+          setScrambleError('Unable to generate official WCA scramble in this environment.');
+        }
+      });
+  }, []);
+
   // Fetch official WCA random-state scrambles when none exist
   useEffect(() => {
     if (scrambles.length === 0) {
-      setLoadingScrambles(true);
-      let isMounted = true;
-      generateWcaScrambles(5)
-        .then((wcaScrambles) => {
-          if (isMounted) {
-            setScrambles(wcaScrambles);
-            setLoadingScrambles(false);
-          }
-        })
-        .catch((err) => {
-          console.error('Failed to generate WCA scrambles:', err);
-          if (isMounted) setLoadingScrambles(false);
-        });
-      return () => {
-        isMounted = false;
-      };
+      fetchScrambles();
     }
-  }, [scrambles.length]);
+  }, [scrambles.length, fetchScrambles]);
 
   // Synchronize active session state to sessionStorage
   useEffect(() => {
@@ -178,7 +189,6 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
     setSolves([]);
     setCurrentSolveIdx(0);
     setScrambles([]);
-    setLoadingScrambles(true);
     try {
       sessionStorage.removeItem('wca_active_solves');
       sessionStorage.removeItem('wca_active_scrambles');
@@ -186,15 +196,7 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
     if (setActiveSessionInProgress) {
       setActiveSessionInProgress(false);
     }
-    generateWcaScrambles(5)
-      .then((wcaScrambles) => {
-        setScrambles(wcaScrambles);
-        setLoadingScrambles(false);
-      })
-      .catch((err) => {
-        console.error('Failed to generate WCA scrambles:', err);
-        setLoadingScrambles(false);
-      });
+    fetchScrambles();
   };
 
   const copyCurrentScramble = () => {
@@ -342,7 +344,16 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
               className="scramble-strip"
               style={{ marginBottom: 0 }}
             >
-              {loadingScrambles || !scrambles[currentSolveIdx] ? (
+              {scrambleError ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                  <span style={{ color: 'var(--color-error)', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <AlertCircle size={14} /> {scrambleError}
+                  </span>
+                  <button className="btn-secondary btn-sm" onClick={fetchScrambles}>
+                    <RotateCcw size={12} /> Retry Scramble Generation
+                  </button>
+                </div>
+              ) : loadingScrambles || !scrambles[currentSolveIdx] ? (
                 <span style={{ color: 'var(--text-tertiary)', fontStyle: 'italic', fontSize: 13 }}>
                   Generating official WCA random-state scramble...
                 </span>
@@ -378,12 +389,13 @@ export const TimeMachineView: React.FC<TimeMachineViewProps> = ({
               </div>
 
               <div className="stopwatch-instructions">
-                {loadingScrambles && 'GENERATING OFFICIAL WCA RANDOM-STATE SCRAMBLE...'}
-                {!loadingScrambles && timer.status === 'IDLE' && 'HOLD SPACEBAR (OR HOLD SCREEN) TO GET READY'}
-                {!loadingScrambles && timer.status === 'HOLDING' && 'HOLD UNTIL GREEN LOCK...'}
-                {!loadingScrambles && timer.status === 'READY' && 'READY! RELEASE SPACEBAR TO START SOLVING'}
-                {!loadingScrambles && timer.status === 'RUNNING' && 'PRESS ANY KEY OR TAP SCREEN TO STOP'}
-                {!loadingScrambles && timer.status === 'FINISHED' && 'SOLVE LOGGED! HOLD SPACEBAR FOR NEXT SOLVE'}
+                {scrambleError && 'SCRAMBLE GENERATION FAILED. CLICK RETRY ABOVE TO PROCEED.'}
+                {!scrambleError && loadingScrambles && 'GENERATING OFFICIAL WCA RANDOM-STATE SCRAMBLE...'}
+                {!scrambleError && !loadingScrambles && timer.status === 'IDLE' && 'HOLD SPACEBAR (OR HOLD SCREEN) TO GET READY'}
+                {!scrambleError && !loadingScrambles && timer.status === 'HOLDING' && 'HOLD UNTIL GREEN LOCK...'}
+                {!scrambleError && !loadingScrambles && timer.status === 'READY' && 'READY! RELEASE SPACEBAR TO START SOLVING'}
+                {!scrambleError && !loadingScrambles && timer.status === 'RUNNING' && 'PRESS ANY KEY OR TAP SCREEN TO STOP'}
+                {!scrambleError && !loadingScrambles && timer.status === 'FINISHED' && 'SOLVE LOGGED! HOLD SPACEBAR FOR NEXT SOLVE'}
               </div>
             </div>
           ) : (

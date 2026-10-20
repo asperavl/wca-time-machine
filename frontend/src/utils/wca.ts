@@ -6,8 +6,8 @@ import { randomScrambleForEvent } from 'cubing/scramble';
  * Uses Herbert Kociemba's Two-Phase Algorithm across all 43 quintillion legal states.
  */
 export async function generateWcaRandomStateScramble(): Promise<string> {
-  const scramble = await randomScrambleForEvent('333');
-  return scramble.toString();
+  const [scramble] = await generateWcaScrambles(1);
+  return scramble;
 }
 
 /**
