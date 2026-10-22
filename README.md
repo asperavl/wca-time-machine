@@ -8,9 +8,9 @@ Uses the official World Cube Association (WCA) database export (1.88M+ results a
 
 ### Pipeline (`pipeline/`)
 - Uses DuckDB to query the raw WCA TSVs (`WCA_export_Results.tsv` and `WCA_export_Competitions.tsv`) directly without loading the full dump into memory.
-- Filters for official 3×3 events (`eventId = '333'`) and groups results by competition year (1982 to 2026).
-- Calculates empirical percentiles (quantiles P1 through P99), 0.5-second binned histograms, and records for both singles and trimmed averages.
-- Outputs `overview.json` and per-year `years/{year}.json` files directly into `frontend/public/data/` so the site runs completely client-side without a database server.
+- Filters for official 3×3 events (`eventId = '333'`) across 18,900+ competitions and groups results by year (1982 to 2026).
+- Aggregates 1.88M valid singles and 1.86M trimmed averages into empirical percentiles (P1–P99), 0.5-second binned histograms, and historical records.
+- Compresses ~690 MB of raw exports down to ~555 KB of static JSON (>99.9% reduction) across `overview.json` and per-year `years/{year}.json`, writing directly to `frontend/public/data/` so the app runs entirely client-side.
 
 ### Frontend (`frontend/`)
 - Static React + Vite app with a 5-solve timer (or manual entry).
@@ -61,3 +61,4 @@ The output in `frontend/dist/` can be deployed to any static host (Cloudflare Pa
 - **Code**: Licensed under the [MIT License](LICENSE).
 - **Scrambles**: WCA random-state 3×3 scrambles are powered by [cubing.js](https://github.com/cubing/cubing.js) (Mozilla Public License 2.0).
 - **Data**: Historical speedcubing statistics are derived from the official [World Cube Association](https://www.worldcubeassociation.org/) public export, used under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
